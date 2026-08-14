@@ -1,0 +1,87 @@
+name: Catch
+options:
+  bundleIdPrefix: com.catch
+  deploymentTarget:
+    iOS: 17.0
+  xcodeVersion: '16.0'
+  createIntermediateGroups: true
+
+settings:
+  base:
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 1.0.0
+    SWIFT_VERSION: 5.9
+    GENERATE_INFOPLIST_FILE: YES
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+
+targets:
+  Catch:
+    type: application
+    platform: iOS
+    sources:
+      - path: Catch
+    info:
+      path: Catch/Info.plist
+      properties:
+        CFBundleDisplayName: Catch
+        CFBundleIdentifier: com.catch.app
+        CFBundleShortVersionString: 1.0.0
+        CFBundleVersion: 1
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+        NSMicrophoneUsageDescription: "Catch needs access to your microphone for instant voice capture and speech transcription."
+        NSSpeechRecognitionUsageDescription: "Catch uses speech recognition to instantly convert your spoken ideas and notes into text."
+        CFBundleURLTypes:
+          - CFBundleURLName: com.catch.app
+            CFBundleURLSchemes:
+              - catch
+    settings:
+      base:
+        PRODUCT_NAME: Catch
+        PRODUCT_MODULE_NAME: Catch
+        PRODUCT_BUNDLE_IDENTIFIER: com.catch.app
+        INFOPLIST_FILE: Catch/Info.plist
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGNING_ALLOWED: NO
+    dependencies:
+      - target: CatchWidget
+
+  CatchWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: CatchWidget
+      - path: Catch/Models
+    info:
+      path: CatchWidget/Info.plist
+      properties:
+        CFBundleDisplayName: Catch Widget
+        CFBundleIdentifier: com.catch.app.widget
+        CFBundleShortVersionString: 1.0.0
+        CFBundleVersion: 1
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_NAME: CatchWidgetExtension
+        PRODUCT_MODULE_NAME: CatchWidgetExtension
+        PRODUCT_BUNDLE_IDENTIFIER: com.catch.app.widget
+        INFOPLIST_FILE: CatchWidget/Info.plist
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGNING_ALLOWED: NO
+
+  CatchTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: CatchTests
+    dependencies:
+      - target: Catch
+    settings:
+      base:
+        PRODUCT_NAME: CatchTests
+        PRODUCT_MODULE_NAME: CatchTests
+        PRODUCT_BUNDLE_IDENTIFIER: com.catch.app.tests
+        CODE_SIGNING_ALLOWED: NO

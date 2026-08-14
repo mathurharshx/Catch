@@ -1,0 +1,16 @@
+# Xcode
+.DS_Store
+*/build/*
+*.moved-aside
+*.xcuserstate
+*.xcworkspace
+!default.xcworkspace
+xcuserdata/
+DerivedData/
+
+# Swift Package Manager
+.build/
+Packages/
+
+# Backup & logs
+*.log
