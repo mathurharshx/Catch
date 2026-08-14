@@ -13,15 +13,21 @@ public struct HomeView: View {
         self._captureSheetConfig = captureSheetConfig
     }
 
+    private var formattedTodayDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, MMM d"
+        return formatter.string(from: Date())
+    }
+
     public var body: some View {
         NavigationView {
             ZStack {
                 Theme.background.ignoresSafeArea()
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
-                        // Hero Quick Capture Trigger Card
-                        heroCaptureBanner
+                    VStack(alignment: .leading, spacing: 20) {
+                        // Hero Capture Command Deck Card (Uses top space effectively)
+                        heroCommandDeckCard
 
                         // Category Quick Filter Pills
                         categoryFilterBar
@@ -31,9 +37,9 @@ public struct HomeView: View {
                             EmptyStateView(
                                 icon: "bolt.badge.clock",
                                 title: "Your personal capture inbox is empty",
-                                subtitle: "Tap the capture bar above to save your first thought, task, or expense."
+                                subtitle: "Tap any category above or start typing to capture your first thought."
                             )
-                            .padding(.top, 40)
+                            .padding(.top, 30)
                         } else {
                             if let filter = activeCategoryFilter {
                                 filteredSection(for: filter)
@@ -42,69 +48,130 @@ public struct HomeView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
+                    .padding(.horizontal, 18)
+                    .padding(.top, 10)
                     .padding(.bottom, 80)
                 }
             }
-            .navigationTitle("Catch")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        HapticsManager.shared.categorySelected()
-                        captureSheetConfig = CaptureSheetConfig()
-                    }) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 24, weight: .semibold))
-                            .foregroundColor(Theme.brandTint)
-                    }
-                }
-            }
+            .navigationBarHidden(true)
             .sheet(item: $selectedItemForDetail) { item in
                 CaptureDetailView(item: item)
             }
         }
+        .navigationViewStyle(.stack)
     }
 
-    // MARK: - Hero Capture Banner
-    private var heroCaptureBanner: some View {
-        Button(action: {
-            HapticsManager.shared.categorySelected()
-            captureSheetConfig = CaptureSheetConfig()
-        }) {
-            HStack(spacing: 14) {
-                ZStack {
-                    Circle()
-                        .fill(Theme.brandTint)
-                        .frame(width: 42, height: 42)
-
-                    Image(systemName: "plus")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
-                }
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("What's on your mind?")
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+    // MARK: - Hero Capture Command Deck Card
+    private var heroCommandDeckCard: some View {
+        VStack(spacing: 16) {
+            // Header Row: App Name & Live Formatted Date
+            HStack(alignment: .center) {
+                HStack(spacing: 6) {
+                    Text("CATCH")
+                        .font(.system(size: 20, weight: .black, design: .rounded))
+                        .tracking(1.2)
                         .foregroundColor(Theme.primaryText)
 
-                    Text("Tap to capture in seconds")
-                        .font(.system(size: 13))
-                        .foregroundColor(Theme.secondaryText)
+                    Circle()
+                        .fill(Theme.brandTint)
+                        .frame(width: 6, height: 6)
                 }
 
                 Spacer()
 
-                Image(systemName: "mic.fill")
-                    .font(.system(size: 16))
-                    .foregroundColor(Theme.brandTint)
-                    .padding(8)
-                    .background(Theme.brandTint.opacity(0.12))
-                    .clipShape(Circle())
+                HStack(spacing: 5) {
+                    Image(systemName: "calendar")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(Theme.secondaryText)
+
+                    Text(formattedTodayDate)
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundColor(Theme.secondaryText)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(Theme.secondaryBackground)
+                .clipShape(Capsule())
             }
-            .padding(14)
-            .catchCard(cornerRadius: Theme.cornerRadiusLarge)
+
+            // Central Quick Capture Input Capsule
+            Button(action: {
+                HapticsManager.shared.categorySelected()
+                captureSheetConfig = CaptureSheetConfig(source: .text)
+            }) {
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(Theme.brandTint)
+                            .frame(width: 36, height: 36)
+
+                        Image(systemName: "plus")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+
+                    Text("What's on your mind?")
+                        .font(.system(size: 15, weight: .medium, design: .rounded))
+                        .foregroundColor(Theme.tertiaryText)
+
+                    Spacer()
+
+                    Button(action: {
+                        HapticsManager.shared.categorySelected()
+                        captureSheetConfig = CaptureSheetConfig(source: .voice)
+                    }) {
+                        Image(systemName: "mic.fill")
+                            .font(.system(size: 15))
+                            .foregroundColor(Theme.brandTint)
+                            .padding(8)
+                            .background(Theme.brandTint.opacity(0.12))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Theme.secondaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+            .buttonStyle(.plain)
+
+            // Category 1-Tap Launcher Shortcuts Row
+            HStack(spacing: 8) {
+                categoryShortcutPill(type: .note)
+                categoryShortcutPill(type: .idea)
+                categoryShortcutPill(type: .task)
+                categoryShortcutPill(type: .expense)
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(Theme.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(Theme.border, lineWidth: 1)
+                )
+                .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 3)
+        )
+    }
+
+    private func categoryShortcutPill(type: CaptureType) -> some View {
+        Button(action: {
+            HapticsManager.shared.categorySelected()
+            captureSheetConfig = CaptureSheetConfig(category: type)
+        }) {
+            HStack(spacing: 5) {
+                Image(systemName: type.iconName)
+                    .font(.system(size: 11, weight: .semibold))
+                Text(type.displayName)
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+            }
+            .foregroundColor(type.tintColor)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 9)
+            .background(type.tintColor.opacity(0.10))
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .buttonStyle(.plain)
     }
@@ -114,41 +181,70 @@ public struct HomeView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 // "All" Pill
-                Button(action: {
-                    HapticsManager.shared.categorySelected()
+                filterChip(title: "All", count: dataStore.items.count, isSelected: activeCategoryFilter == nil) {
                     activeCategoryFilter = nil
-                }) {
-                    Text("All")
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 7)
-                        .foregroundColor(activeCategoryFilter == nil ? .white : Theme.primaryText)
-                        .background(
-                            Capsule()
-                                .fill(activeCategoryFilter == nil ? Theme.primaryText : Theme.secondaryBackground)
-                        )
                 }
-                .buttonStyle(.plain)
 
                 ForEach(CaptureType.allCases) { category in
-                    Button(action: {
-                        HapticsManager.shared.categorySelected()
-                        if activeCategoryFilter == category {
-                            activeCategoryFilter = nil
-                        } else {
-                            activeCategoryFilter = category
+                    let count = dataStore.items(for: category).count
+                    if count > 0 || activeCategoryFilter == category {
+                        filterChip(
+                            title: category.displayName,
+                            count: count,
+                            icon: category.iconName,
+                            color: category.tintColor,
+                            isSelected: activeCategoryFilter == category
+                        ) {
+                            if activeCategoryFilter == category {
+                                activeCategoryFilter = nil
+                            } else {
+                                activeCategoryFilter = category
+                            }
                         }
-                    }) {
-                        CategoryBadge(
-                            type: category,
-                            isSelected: activeCategoryFilter == category,
-                            showText: true
-                        )
                     }
-                    .buttonStyle(.plain)
                 }
             }
+            .padding(.vertical, 2)
         }
+    }
+
+    private func filterChip(
+        title: String,
+        count: Int,
+        icon: String? = nil,
+        color: Color = Theme.primaryText,
+        isSelected: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: {
+            HapticsManager.shared.categorySelected()
+            action()
+        }) {
+            HStack(spacing: 5) {
+                if let icon = icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 10, weight: .semibold))
+                }
+
+                Text(title)
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+
+                Text("\(count)")
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 1)
+                    .background(isSelected ? Color.white.opacity(0.25) : color.opacity(0.12))
+                    .clipShape(Capsule())
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .foregroundColor(isSelected ? .white : (icon != nil ? color : Theme.primaryText))
+            .background(
+                Capsule()
+                    .fill(isSelected ? (icon != nil ? color : Theme.primaryText) : Theme.secondaryBackground)
+            )
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Default Overview Sections
