@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		026A25B8D5747E2B9D339432 /* CategoryDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8ADA25E11C1A507B15CD86 /* CategoryDetector.swift */; };
 		0530D486A749185B90A68C35 /* CaptureSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6709478D45059F0C5212467F /* CaptureSource.swift */; };
 		07E1B631754189C685FB60D7 /* CaptureAppIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BCC4DC38C97A150A07B96B9 /* CaptureAppIntent.swift */; };
 		1F1C6BDEE3172554C6D6749C /* CatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2344F25DC378864C7E7FC0 /* CatchApp.swift */; };
@@ -14,8 +15,10 @@
 		22801EC1F2DF2EB194BAE3F8 /* CaptureCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38778EF3EC71507B2BACF64 /* CaptureCardView.swift */; };
 		2CD4EA20324B209086CF34A7 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68933986A7431817F502F717 /* EmptyStateView.swift */; };
 		2DF58A88F53F12FED33CC98A /* CatchWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248D560F98AFA77AF479F2CC /* CatchWidget.swift */; };
+		3B89861FA1FB9932E72089B5 /* HighlightedText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A399CE751D5F63DEEDD6310 /* HighlightedText.swift */; };
 		43B894DE99CBB940C993D8E3 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71675543C5E370E0CDDC5D6F /* MainTabView.swift */; };
 		50BF68619EA075B70D240DA1 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47358FD20697321A60B2D0AB /* NotificationManager.swift */; };
+		5780254ECBA32ABAA10B7374 /* CategoryDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 969ECCA919B9755C43DDBE03 /* CategoryDetectorTests.swift */; };
 		5D62BB24550FEA312C04C959 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 304DAD233C992F1051B6EA24 /* UserSettings.swift */; };
 		620695EED6BDE2B177BC896D /* ExpenseParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89E2E263D80ABDA4AB22B1A3 /* ExpenseParserTests.swift */; };
 		649E6E40DF4A4A596F968826 /* CaptureSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6709478D45059F0C5212467F /* CaptureSource.swift */; };
@@ -30,6 +33,7 @@
 		8B4614F1732095E157170FED /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BDAAB290D88CBD13F3136B /* Theme.swift */; };
 		8F9A242DD4A4561BCB0CB3E3 /* CatchWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DBBDF2AEA5C9B20660C9799F /* CatchWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		941202FD979CB553F49483CF /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E664DBDB759A41A29CEE76F4 /* SettingsView.swift */; };
+		9FDB0715E328341C038F4685 /* TaskCheckboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67CB21AC3777C1BADD696C94 /* TaskCheckboxView.swift */; };
 		AA553EE6C9D01AFCA23F4660 /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B602640F7E90503CEB722F63 /* HapticsManager.swift */; };
 		ADA722D01DE8A0B554AD60F8 /* ConfirmationToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA4831DC5042FB32880EB10 /* ConfirmationToast.swift */; };
 		CAEEEB3C1B282B47CA804ED1 /* CaptureItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B9A1A9718043127D3039BD /* CaptureItem.swift */; };
@@ -90,12 +94,16 @@
 		5E2344F25DC378864C7E7FC0 /* CatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatchApp.swift; sourceTree = "<group>"; };
 		5FE609695C8170A1D4FF2FB1 /* AudioWaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioWaveformView.swift; sourceTree = "<group>"; };
 		6709478D45059F0C5212467F /* CaptureSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureSource.swift; sourceTree = "<group>"; };
+		67CB21AC3777C1BADD696C94 /* TaskCheckboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCheckboxView.swift; sourceTree = "<group>"; };
 		68933986A7431817F502F717 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		71675543C5E370E0CDDC5D6F /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		88B93B1A07D08A78D957C073 /* SpeechManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechManager.swift; sourceTree = "<group>"; };
 		88D7626ABDA94A883F5C0334 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		89E2E263D80ABDA4AB22B1A3 /* ExpenseParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseParserTests.swift; sourceTree = "<group>"; };
+		969ECCA919B9755C43DDBE03 /* CategoryDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryDetectorTests.swift; sourceTree = "<group>"; };
 		99BDAAB290D88CBD13F3136B /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		9A399CE751D5F63DEEDD6310 /* HighlightedText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighlightedText.swift; sourceTree = "<group>"; };
+		AC8ADA25E11C1A507B15CD86 /* CategoryDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryDetector.swift; sourceTree = "<group>"; };
 		ADD39B1950DCC1318CA5A8E6 /* DataStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStoreTests.swift; sourceTree = "<group>"; };
 		B602640F7E90503CEB722F63 /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		B849B43F5EE46A01A6D665D1 /* Catch.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Catch.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -160,6 +168,7 @@
 		72631BDB0B0FA46E9900B5A0 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				AC8ADA25E11C1A507B15CD86 /* CategoryDetector.swift */,
 				22E71D2746A8D8B841E88147 /* DataStore.swift */,
 				38542C6516BABEAFF7E22C78 /* ExpenseParser.swift */,
 				B602640F7E90503CEB722F63 /* HapticsManager.swift */,
@@ -226,6 +235,7 @@
 			isa = PBXGroup;
 			children = (
 				1C197734FB3491726A0F736E /* CaptureItemTests.swift */,
+				969ECCA919B9755C43DDBE03 /* CategoryDetectorTests.swift */,
 				ADD39B1950DCC1318CA5A8E6 /* DataStoreTests.swift */,
 				89E2E263D80ABDA4AB22B1A3 /* ExpenseParserTests.swift */,
 			);
@@ -264,6 +274,8 @@
 				1162E7993380C48259ABD857 /* CategoryBadge.swift */,
 				3DA4831DC5042FB32880EB10 /* ConfirmationToast.swift */,
 				68933986A7431817F502F717 /* EmptyStateView.swift */,
+				9A399CE751D5F63DEEDD6310 /* HighlightedText.swift */,
+				67CB21AC3777C1BADD696C94 /* TaskCheckboxView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -370,11 +382,13 @@
 				85C1A2D05C774D4FB7C178C2 /* CaptureType.swift in Sources */,
 				1F1C6BDEE3172554C6D6749C /* CatchApp.swift in Sources */,
 				EA7B5A396F329C20741B5D0A /* CategoryBadge.swift in Sources */,
+				026A25B8D5747E2B9D339432 /* CategoryDetector.swift in Sources */,
 				ADA722D01DE8A0B554AD60F8 /* ConfirmationToast.swift in Sources */,
 				E75F9DA39F49F5CA935BD4CD /* DataStore.swift in Sources */,
 				2CD4EA20324B209086CF34A7 /* EmptyStateView.swift in Sources */,
 				D0F517F3518A44913504762F /* ExpenseParser.swift in Sources */,
 				AA553EE6C9D01AFCA23F4660 /* HapticsManager.swift in Sources */,
+				3B89861FA1FB9932E72089B5 /* HighlightedText.swift in Sources */,
 				6AB859D59D98E0FB4E9212B8 /* HistoryView.swift in Sources */,
 				74E59215A21083C26AE55CC2 /* HomeView.swift in Sources */,
 				43B894DE99CBB940C993D8E3 /* MainTabView.swift in Sources */,
@@ -382,6 +396,7 @@
 				79A529C88C3500B9576A42A9 /* QuickCaptureView.swift in Sources */,
 				941202FD979CB553F49483CF /* SettingsView.swift in Sources */,
 				E4E2EDDA9376B7F7B0586D48 /* SpeechManager.swift in Sources */,
+				9FDB0715E328341C038F4685 /* TaskCheckboxView.swift in Sources */,
 				8B4614F1732095E157170FED /* Theme.swift in Sources */,
 				5D62BB24550FEA312C04C959 /* UserSettings.swift in Sources */,
 			);
@@ -392,6 +407,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				70ED57910A65CCCBFEDEE8A9 /* CaptureItemTests.swift in Sources */,
+				5780254ECBA32ABAA10B7374 /* CategoryDetectorTests.swift in Sources */,
 				849A21DA98660AF4C0F2FE2A /* DataStoreTests.swift in Sources */,
 				620695EED6BDE2B177BC896D /* ExpenseParserTests.swift in Sources */,
 			);

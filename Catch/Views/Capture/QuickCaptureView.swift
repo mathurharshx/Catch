@@ -13,6 +13,7 @@ public struct QuickCaptureView: View {
     @State private var textContent: String = ""
     @State private var selectedCategory: CaptureType
     @State private var captureSource: CaptureSource = .text
+    @State private var hasManuallySelectedCategory: Bool = false
 
     // Optional Expense Specific State
     @State private var expenseAmountString: String = ""
@@ -48,7 +49,10 @@ public struct QuickCaptureView: View {
                             ForEach(CaptureType.allCases) { category in
                                 Button(action: {
                                     HapticsManager.shared.categorySelected()
-                                    selectedCategory = category
+                                    withAnimation(Theme.springQuick) {
+                                        selectedCategory = category
+                                        hasManuallySelectedCategory = true
+                                    }
                                 }) {
                                     CategoryBadge(
                                         type: category,
@@ -388,15 +392,31 @@ public struct QuickCaptureView: View {
     // MARK: - Actions
 
     private func handleTextChange(_ text: String) {
-        // Auto-detect expense syntax if user hasn't changed category manually
-        if selectedCategory == .note {
-            if let parsed = ExpenseParser.parse(text: text, defaultCurrency: userSettings.defaultCurrency) {
-                // If it starts with currency or is clearly an expense, gently switch or keep note
-                if text.starts(with: "₹") || text.starts(with: "$") || text.starts(with: "€") || text.starts(with: "£") {
-                    selectedCategory = .expense
-                    expenseAmountString = "\(parsed.amount)"
-                    expenseMerchant = parsed.merchant
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if trimmed.isEmpty {
+            if !hasManuallySelectedCategory {
+                withAnimation(Theme.springQuick) {
+                    selectedCategory = userSettings.defaultCategory
                 }
+            }
+            return
+        }
+
+        // Proactive Zero-Touch Categorization if user hasn't manually overridden
+        if !hasManuallySelectedCategory {
+            let detection = CategoryDetector.detect(from: trimmed, defaultCurrency: userSettings.defaultCurrency)
+
+            if detection.category != selectedCategory && detection.confidence >= 0.80 {
+                withAnimation(Theme.springQuick) {
+                    selectedCategory = detection.category
+                }
+                HapticsManager.shared.categorySelected()
+            }
+
+            if let parsedExpense = detection.parsedExpense {
+                expenseAmountString = "\(parsedExpense.amount)"
+                expenseMerchant = parsedExpense.merchant
             }
         }
     }

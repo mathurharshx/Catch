@@ -1,25 +1,34 @@
 import WidgetKit
 import SwiftUI
 
-struct CatchWidgetEntry: TimelineEntry {
-    let date: Date
-    let recentItemCount: Int
-    let lastCaptureText: String?
+// MARK: - Timeline Entry & Provider
+
+public struct CatchWidgetEntry: TimelineEntry {
+    public let date: Date
+    public let recentItemCount: Int
+    public let lastCaptureText: String?
+
+    public init(date: Date, recentItemCount: Int, lastCaptureText: String?) {
+        self.date = date
+        self.recentItemCount = recentItemCount
+        self.lastCaptureText = lastCaptureText
+    }
 }
 
-struct CatchWidgetProvider: TimelineProvider {
-    func placeholder(in context: Context) -> CatchWidgetEntry {
+public struct CatchWidgetProvider: TimelineProvider {
+    public init() {}
+
+    public func placeholder(in context: Context) -> CatchWidgetEntry {
         CatchWidgetEntry(date: Date(), recentItemCount: 4, lastCaptureText: "Buy toothpaste")
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (CatchWidgetEntry) -> ()) {
+    public func getSnapshot(in context: Context, completion: @escaping (CatchWidgetEntry) -> ()) {
         let entry = loadCurrentEntry()
         completion(entry)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+    public func getTimeline(in context: Context, completion: @escaping (Timeline<CatchWidgetEntry>) -> ()) {
         let entry = loadCurrentEntry()
-        // Refresh every 30 minutes or on reloadAllTimelines
         let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: Date()) ?? Date().addingTimeInterval(1800)
         let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
         completion(timeline)
@@ -46,11 +55,17 @@ struct CatchWidgetProvider: TimelineProvider {
     }
 }
 
-struct CatchWidgetEntryView: View {
-    @Environment(\.widgetFamily) var widgetFamily
-    var entry: CatchWidgetProvider.Entry
+// MARK: - Main Multi-Family Widget
 
-    var body: some View {
+public struct CatchWidgetEntryView: View {
+    @Environment(\.widgetFamily) var widgetFamily
+    public var entry: CatchWidgetProvider.Entry
+
+    public init(entry: CatchWidgetProvider.Entry) {
+        self.entry = entry
+    }
+
+    public var body: some View {
         switch widgetFamily {
         // MARK: - Lock Screen Circular Accessory
         case .accessoryCircular:
@@ -69,9 +84,9 @@ struct CatchWidgetEntryView: View {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 22, weight: .semibold))
                     VStack(alignment: .leading, spacing: 1) {
-                        Text("Capture")
+                        Text("Catch")
                             .font(.system(size: 13, weight: .bold, design: .rounded))
-                        Text(entry.lastCaptureText ?? "Tap to save...")
+                        Text(entry.lastCaptureText ?? "Tap to capture...")
                             .font(.system(size: 11))
                             .lineLimit(1)
                     }
@@ -165,10 +180,12 @@ struct CatchWidgetEntryView: View {
     }
 }
 
-struct CatchWidget: Widget {
-    let kind: String = "CatchWidget"
+public struct CatchWidget: Widget {
+    public let kind: String = "CatchWidget"
 
-    var body: some WidgetConfiguration {
+    public init() {}
+
+    public var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: CatchWidgetProvider()) { entry in
             CatchWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
@@ -182,5 +199,70 @@ struct CatchWidget: Widget {
             .systemSmall,
             .systemMedium
         ])
+    }
+}
+
+// MARK: - Dedicated Category Lock Screen Widgets
+
+public struct TaskLockScreenWidget: Widget {
+    public let kind: String = "TaskLockScreenWidget"
+    public init() {}
+
+    public var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: CatchWidgetProvider()) { _ in
+            Link(destination: URL(string: "catch://capture?type=task")!) {
+                ZStack {
+                    AccessoryWidgetBackground()
+                    Image(systemName: "checkmark.circle")
+                        .font(.system(size: 20, weight: .bold))
+                }
+            }
+            .containerBackground(.fill.tertiary, for: .widget)
+        }
+        .configurationDisplayName("Capture Task")
+        .description("1-tap shortcut to capture a task.")
+        .supportedFamilies([.accessoryCircular])
+    }
+}
+
+public struct ExpenseLockScreenWidget: Widget {
+    public let kind: String = "ExpenseLockScreenWidget"
+    public init() {}
+
+    public var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: CatchWidgetProvider()) { _ in
+            Link(destination: URL(string: "catch://capture?type=expense")!) {
+                ZStack {
+                    AccessoryWidgetBackground()
+                    Image(systemName: "indianrupeesign.circle")
+                        .font(.system(size: 20, weight: .bold))
+                }
+            }
+            .containerBackground(.fill.tertiary, for: .widget)
+        }
+        .configurationDisplayName("Capture Expense")
+        .description("1-tap shortcut to log an expense.")
+        .supportedFamilies([.accessoryCircular])
+    }
+}
+
+public struct IdeaLockScreenWidget: Widget {
+    public let kind: String = "IdeaLockScreenWidget"
+    public init() {}
+
+    public var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: CatchWidgetProvider()) { _ in
+            Link(destination: URL(string: "catch://capture?type=idea")!) {
+                ZStack {
+                    AccessoryWidgetBackground()
+                    Image(systemName: "lightbulb")
+                        .font(.system(size: 20, weight: .bold))
+                }
+            }
+            .containerBackground(.fill.tertiary, for: .widget)
+        }
+        .configurationDisplayName("Capture Idea")
+        .description("1-tap shortcut to capture a new idea.")
+        .supportedFamilies([.accessoryCircular])
     }
 }

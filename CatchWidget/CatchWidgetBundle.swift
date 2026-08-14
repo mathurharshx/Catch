@@ -5,5 +5,8 @@ import SwiftUI
 struct CatchWidgetBundle: WidgetBundle {
     var body: some Widget {
         CatchWidget()
+        TaskLockScreenWidget()
+        ExpenseLockScreenWidget()
+        IdeaLockScreenWidget()
     }
 }

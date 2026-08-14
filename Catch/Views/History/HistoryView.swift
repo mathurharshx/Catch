@@ -39,36 +39,44 @@ public struct HistoryView: View {
                             )
                         }
                     } else {
-                        List {
-                            ForEach(grouped, id: \.key) { group in
-                                Section(header: sectionHeaderView(title: group.key, count: group.items.count)) {
-                                    ForEach(group.items) { item in
-                                        CaptureCardView(
-                                            item: item,
-                                            onToggleTask: {
-                                                dataStore.toggleTask(id: item.id)
-                                            },
-                                            onTap: {
-                                                selectedItemForDetail = item
-                                            }
-                                        )
-                                        .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
-                                        .listRowBackground(Color.clear)
-                                        .listRowSeparator(.hidden)
-                                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                            Button(role: .destructive) {
-                                                dataStore.delete(id: item.id)
-                                            } label: {
-                                                Label("Delete", systemImage: "trash")
+                        ScrollView {
+                            LazyVStack(spacing: 16, pinnedViews: [.sectionHeaders]) {
+                                ForEach(grouped, id: \.key) { group in
+                                    Section(header: stickyHeaderView(title: group.key, count: group.items.count)) {
+                                        VStack(spacing: 8) {
+                                            ForEach(group.items) { item in
+                                                CaptureCardView(
+                                                    item: item,
+                                                    searchQuery: searchQuery,
+                                                    onToggleTask: {
+                                                        dataStore.toggleTask(id: item.id)
+                                                    },
+                                                    onTap: {
+                                                        selectedItemForDetail = item
+                                                    }
+                                                )
+                                                .contextMenu {
+                                                    if item.type == .task {
+                                                        Button(action: {
+                                                            dataStore.toggleTask(id: item.id)
+                                                        }) {
+                                                            Label(item.isCompleted ? "Mark Incomplete" : "Mark Complete", systemImage: item.isCompleted ? "circle" : "checkmark.circle")
+                                                        }
+                                                    }
+                                                    Button(role: .destructive, action: {
+                                                        dataStore.delete(id: item.id)
+                                                    }) {
+                                                        Label("Delete", systemImage: "trash")
+                                                    }
+                                                }
                                             }
                                         }
+                                        .padding(.horizontal, 20)
                                     }
                                 }
                             }
+                            .padding(.bottom, 80)
                         }
-                        .listStyle(.plain)
-                        .scrollContentBackground(.hidden)
-                        .safeAreaPadding(.bottom, 60)
                     }
                 }
             }
@@ -129,7 +137,7 @@ public struct HistoryView: View {
         .background(Theme.background)
     }
 
-    private func sectionHeaderView(title: String, count: Int) -> some View {
+    private func stickyHeaderView(title: String, count: Int) -> some View {
         HStack {
             Text(title.uppercased())
                 .font(.system(size: 12, weight: .bold, design: .rounded))
@@ -138,10 +146,14 @@ public struct HistoryView: View {
             Spacer()
 
             Text("\(count) \(count == 1 ? "item" : "items")")
-                .font(.system(size: 11, weight: .medium))
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
                 .foregroundColor(Theme.tertiaryText)
         }
-        .padding(.vertical, 6)
-        .padding(.horizontal, 4)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 8)
+        .background(
+            Rectangle()
+                .fill(.ultraThinMaterial)
+        )
     }
 }

@@ -3,15 +3,18 @@ import SwiftUI
 /// Elegant, minimalist card for a captured item in lists and streams.
 public struct CaptureCardView: View {
     public let item: CaptureItem
+    public var searchQuery: String = ""
     public var onToggleTask: (() -> Void)?
     public var onTap: (() -> Void)?
 
     public init(
         item: CaptureItem,
+        searchQuery: String = "",
         onToggleTask: (() -> Void)? = nil,
         onTap: (() -> Void)? = nil
     ) {
         self.item = item
+        self.searchQuery = searchQuery
         self.onToggleTask = onToggleTask
         self.onTap = onTap
     }
@@ -21,17 +24,11 @@ public struct CaptureCardView: View {
             onTap?()
         }) {
             HStack(alignment: .top, spacing: 12) {
-                // Task Checkbox or Category Indicator
+                // Task Animated Checkbox or Category Indicator Dot
                 if item.type == .task {
-                    Button(action: {
+                    TaskCheckboxView(isCompleted: item.isCompleted) {
                         onToggleTask?()
-                    }) {
-                        Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(item.isCompleted ? Theme.accentSuccess : Theme.tertiaryText)
-                            .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
                     .padding(.top, 1)
                 } else {
                     Circle()
@@ -42,13 +39,16 @@ public struct CaptureCardView: View {
 
                 // Main Content & Metadata
                 VStack(alignment: .leading, spacing: 6) {
-                    // Content text
-                    Text(item.content)
-                        .font(.system(size: 15, weight: .regular))
-                        .foregroundColor(item.isCompleted ? Theme.secondaryText : Theme.primaryText)
-                        .strikethrough(item.isCompleted, color: Theme.secondaryText)
-                        .lineLimit(3)
-                        .multilineTextAlignment(.leading)
+                    // Content text with search term highlighting
+                    HighlightedText(
+                        text: item.content,
+                        query: searchQuery,
+                        isStrikethrough: item.isCompleted,
+                        textColor: item.isCompleted ? Theme.secondaryText : Theme.primaryText,
+                        highlightColor: item.type.tintColor
+                    )
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
 
                     // Footer row: Category, Source, Expense amount, Reminder, Timestamp
                     HStack(spacing: 8) {
