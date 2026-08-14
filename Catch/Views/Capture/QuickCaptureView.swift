@@ -35,6 +35,7 @@ public struct QuickCaptureView: View {
         let initialCat = initialCategory ?? UserSettings.shared.defaultCategory
         _selectedCategory = State(initialValue: initialCat)
         _captureSource = State(initialValue: initialSource)
+        _hasManuallySelectedCategory = State(initialValue: initialCategory != nil)
     }
 
     public var body: some View {

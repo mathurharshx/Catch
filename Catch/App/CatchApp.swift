@@ -4,8 +4,7 @@ import SwiftUI
 struct CatchApp: App {
     @StateObject private var dataStore = DataStore.shared
     @StateObject private var userSettings = UserSettings.shared
-    @State private var isPresentingCapture: Bool = false
-    @State private var initialCategoryForCapture: CaptureType? = nil
+    @State private var captureSheetConfig: CaptureSheetConfig? = nil
 
     init() {
         // Configure standard appearance
@@ -17,11 +16,13 @@ struct CatchApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MainTabView(isPresentingCapture: $isPresentingCapture)
+            MainTabView(captureSheetConfig: $captureSheetConfig)
                 .onAppear {
                     if userSettings.openCaptureOnColdLaunch {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            isPresentingCapture = true
+                            if captureSheetConfig == nil {
+                                captureSheetConfig = CaptureSheetConfig()
+                            }
                         }
                     }
                 }
@@ -34,16 +35,24 @@ struct CatchApp: App {
     private func handleDeepLink(url: URL) {
         guard url.scheme == "catch" else { return }
 
-        // Host could be "capture" e.g. catch://capture?type=task
-        if url.host == "capture" || url.path.contains("capture") {
+        var selectedType: CaptureType? = nil
+
+        // Support catch://capture?type=task or catch://task or catch://expense etc.
+        let host = url.host?.lowercased() ?? ""
+        let path = url.path.lowercased()
+
+        if host == "capture" || path.contains("capture") || url.absoluteString.starts(with: "catch://capture") {
             if let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
                let typeParam = components.queryItems?.first(where: { $0.name == "type" })?.value,
-               let type = CaptureType(rawValue: typeParam) {
-                initialCategoryForCapture = type
-            } else {
-                initialCategoryForCapture = nil
+               let type = CaptureType(rawValue: typeParam.lowercased()) {
+                selectedType = type
             }
-            isPresentingCapture = true
+        } else if let directType = CaptureType(rawValue: host) {
+            // Direct scheme shortcut e.g. catch://task or catch://expense
+            selectedType = directType
         }
+
+        // Set config with fresh UUID to trigger SwiftUI sheet presentation cleanly
+        captureSheetConfig = CaptureSheetConfig(category: selectedType)
     }
 }

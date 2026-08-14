@@ -69,70 +69,66 @@ public struct CatchWidgetEntryView: View {
         switch widgetFamily {
         // MARK: - Lock Screen Circular Accessory
         case .accessoryCircular:
-            Link(destination: URL(string: "catch://capture")!) {
-                ZStack {
-                    AccessoryWidgetBackground()
-                    Image(systemName: "plus")
-                        .font(.system(size: 20, weight: .bold))
-                }
+            ZStack {
+                AccessoryWidgetBackground()
+                Image(systemName: "plus")
+                    .font(.system(size: 20, weight: .bold))
             }
+            .widgetURL(URL(string: "catch://capture")!)
 
         // MARK: - Lock Screen Rectangular Accessory
         case .accessoryRectangular:
-            Link(destination: URL(string: "catch://capture")!) {
-                HStack(spacing: 8) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 22, weight: .semibold))
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("Catch")
-                            .font(.system(size: 13, weight: .bold, design: .rounded))
-                        Text(entry.lastCaptureText ?? "Tap to capture...")
-                            .font(.system(size: 11))
-                            .lineLimit(1)
-                    }
+            HStack(spacing: 8) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 22, weight: .semibold))
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Catch")
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                    Text(entry.lastCaptureText ?? "Tap to capture...")
+                        .font(.system(size: 11))
+                        .lineLimit(1)
                 }
             }
+            .widgetURL(URL(string: "catch://capture")!)
 
         // MARK: - Lock Screen Inline Accessory
         case .accessoryInline:
-            Link(destination: URL(string: "catch://capture")!) {
-                Label("Capture thought", systemImage: "plus")
-            }
+            Label("Capture thought", systemImage: "plus")
+                .widgetURL(URL(string: "catch://capture")!)
 
         // MARK: - Home Screen Small Widget
         case .systemSmall:
-            Link(destination: URL(string: "catch://capture")!) {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        ZStack {
-                            Circle()
-                                .fill(Color(red: 0.38, green: 0.45, blue: 0.98))
-                                .frame(width: 36, height: 36)
-                            Image(systemName: "plus")
-                                .font(.system(size: 18, weight: .bold))
-                                .foregroundColor(.white)
-                        }
-                        Spacer()
-                        Text("\(entry.recentItemCount)")
-                            .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundColor(.secondary)
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    ZStack {
+                        Circle()
+                            .fill(Color(red: 0.38, green: 0.45, blue: 0.98))
+                            .frame(width: 36, height: 36)
+                        Image(systemName: "plus")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(.white)
                     }
-
                     Spacer()
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Catch")
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
-
-                        Text(entry.lastCaptureText ?? "Tap to capture instantly")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                            .lineLimit(2)
-                    }
+                    Text("\(entry.recentItemCount)")
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .foregroundColor(.secondary)
                 }
-                .padding(14)
+
+                Spacer()
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Catch")
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+
+                    Text(entry.lastCaptureText ?? "Tap to capture instantly")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
             }
+            .padding(14)
+            .widgetURL(URL(string: "catch://capture")!)
 
         // MARK: - Home Screen Medium Widget
         case .systemMedium:
@@ -157,9 +153,8 @@ public struct CatchWidgetEntryView: View {
             .padding(14)
 
         default:
-            Link(destination: URL(string: "catch://capture")!) {
-                Text("Catch")
-            }
+            Text("Catch")
+                .widgetURL(URL(string: "catch://capture")!)
         }
     }
 
@@ -210,13 +205,12 @@ public struct TaskLockScreenWidget: Widget {
 
     public var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: CatchWidgetProvider()) { _ in
-            Link(destination: URL(string: "catch://capture?type=task")!) {
-                ZStack {
-                    AccessoryWidgetBackground()
-                    Image(systemName: "checkmark.circle")
-                        .font(.system(size: 20, weight: .bold))
-                }
+            ZStack {
+                AccessoryWidgetBackground()
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 20, weight: .bold))
             }
+            .widgetURL(URL(string: "catch://capture?type=task")!)
             .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName("Capture Task")
@@ -231,13 +225,12 @@ public struct ExpenseLockScreenWidget: Widget {
 
     public var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: CatchWidgetProvider()) { _ in
-            Link(destination: URL(string: "catch://capture?type=expense")!) {
-                ZStack {
-                    AccessoryWidgetBackground()
-                    Image(systemName: "indianrupeesign.circle")
-                        .font(.system(size: 20, weight: .bold))
-                }
+            ZStack {
+                AccessoryWidgetBackground()
+                Image(systemName: "indianrupeesign.circle.fill")
+                    .font(.system(size: 20, weight: .bold))
             }
+            .widgetURL(URL(string: "catch://capture?type=expense")!)
             .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName("Capture Expense")
@@ -252,17 +245,36 @@ public struct IdeaLockScreenWidget: Widget {
 
     public var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: CatchWidgetProvider()) { _ in
-            Link(destination: URL(string: "catch://capture?type=idea")!) {
-                ZStack {
-                    AccessoryWidgetBackground()
-                    Image(systemName: "lightbulb")
-                        .font(.system(size: 20, weight: .bold))
-                }
+            ZStack {
+                AccessoryWidgetBackground()
+                Image(systemName: "lightbulb.fill")
+                    .font(.system(size: 20, weight: .bold))
             }
+            .widgetURL(URL(string: "catch://capture?type=idea")!)
             .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName("Capture Idea")
         .description("1-tap shortcut to capture a new idea.")
+        .supportedFamilies([.accessoryCircular])
+    }
+}
+
+public struct NoteLockScreenWidget: Widget {
+    public let kind: String = "NoteLockScreenWidget"
+    public init() {}
+
+    public var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: CatchWidgetProvider()) { _ in
+            ZStack {
+                AccessoryWidgetBackground()
+                Image(systemName: "doc.text.fill")
+                    .font(.system(size: 20, weight: .bold))
+            }
+            .widgetURL(URL(string: "catch://capture?type=note")!)
+            .containerBackground(.fill.tertiary, for: .widget)
+        }
+        .configurationDisplayName("Capture Note")
+        .description("1-tap shortcut to capture a note.")
         .supportedFamilies([.accessoryCircular])
     }
 }

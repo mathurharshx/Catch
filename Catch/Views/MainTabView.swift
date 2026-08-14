@@ -2,18 +2,17 @@ import SwiftUI
 
 /// Main container view with bottom navigation and quick capture trigger.
 public struct MainTabView: View {
-    @Binding public var isPresentingCapture: Bool
-    @State private var captureInitialCategory: CaptureType? = nil
+    @Binding public var captureSheetConfig: CaptureSheetConfig?
     @State private var selectedTab: Int = 0
 
-    public init(isPresentingCapture: Binding<Bool>) {
-        self._isPresentingCapture = isPresentingCapture
+    public init(captureSheetConfig: Binding<CaptureSheetConfig?>) {
+        self._captureSheetConfig = captureSheetConfig
     }
 
     public var body: some View {
         ZStack(alignment: .bottomTrailing) {
             TabView(selection: $selectedTab) {
-                HomeView(isPresentingCapture: $isPresentingCapture)
+                HomeView(captureSheetConfig: $captureSheetConfig)
                     .tabItem {
                         Label("Home", systemImage: "house.fill")
                     }
@@ -33,11 +32,11 @@ public struct MainTabView: View {
             }
             .tint(Theme.brandTint)
 
-            // Floating Quick Capture FAB on non-Home tabs or as permanent shortcut
+            // Floating Quick Capture FAB on non-Home tabs
             if selectedTab != 0 {
                 Button(action: {
                     HapticsManager.shared.categorySelected()
-                    isPresentingCapture = true
+                    captureSheetConfig = CaptureSheetConfig()
                 }) {
                     Image(systemName: "plus")
                         .font(.system(size: 20, weight: .bold))
@@ -53,8 +52,8 @@ public struct MainTabView: View {
                 .transition(.scale.combined(with: .opacity))
             }
         }
-        .sheet(isPresented: $isPresentingCapture) {
-            QuickCaptureView(initialCategory: captureInitialCategory)
+        .sheet(item: $captureSheetConfig) { config in
+            QuickCaptureView(initialCategory: config.category, initialSource: config.source)
         }
     }
 }

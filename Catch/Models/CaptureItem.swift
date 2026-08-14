@@ -97,3 +97,17 @@ public struct CaptureItem: Identifiable, Codable, Equatable, Hashable, Sendable 
         }
     }
 }
+
+/// Configuration model for presenting the Quick Capture sheet reliably with specific category/source.
+public struct CaptureSheetConfig: Identifiable, Equatable, Hashable, Sendable {
+    public let id: UUID
+    public var category: CaptureType?
+    public var source: CaptureSource
+
+    public init(id: UUID = UUID(), category: CaptureType? = nil, source: CaptureSource = .text) {
+        self.id = id
+        self.category = category
+        self.source = source
+    }
+}
+

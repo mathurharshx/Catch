@@ -5,12 +5,12 @@ public struct HomeView: View {
     @ObservedObject private var dataStore = DataStore.shared
     @ObservedObject private var userSettings = UserSettings.shared
 
-    @Binding public var isPresentingCapture: Bool
+    @Binding public var captureSheetConfig: CaptureSheetConfig?
     @State private var selectedItemForDetail: CaptureItem?
     @State private var activeCategoryFilter: CaptureType? = nil
 
-    public init(isPresentingCapture: Binding<Bool>) {
-        self._isPresentingCapture = isPresentingCapture
+    public init(captureSheetConfig: Binding<CaptureSheetConfig?>) {
+        self._captureSheetConfig = captureSheetConfig
     }
 
     public var body: some View {
@@ -53,7 +53,7 @@ public struct HomeView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         HapticsManager.shared.categorySelected()
-                        isPresentingCapture = true
+                        captureSheetConfig = CaptureSheetConfig()
                     }) {
                         Image(systemName: "plus.circle.fill")
                             .font(.system(size: 24, weight: .semibold))
@@ -71,7 +71,7 @@ public struct HomeView: View {
     private var heroCaptureBanner: some View {
         Button(action: {
             HapticsManager.shared.categorySelected()
-            isPresentingCapture = true
+            captureSheetConfig = CaptureSheetConfig()
         }) {
             HStack(spacing: 14) {
                 ZStack {

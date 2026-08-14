@@ -8,5 +8,6 @@ struct CatchWidgetBundle: WidgetBundle {
         TaskLockScreenWidget()
         ExpenseLockScreenWidget()
         IdeaLockScreenWidget()
+        NoteLockScreenWidget()
     }
 }
