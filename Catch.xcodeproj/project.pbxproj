@@ -17,6 +17,7 @@
 		BB31F5E27DC675608DBEA516 /* CatchyMascotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA31F5E27DC675608DBEA516 /* CatchyMascotView.swift */; };
 		BBGIFRES5E27DC675608DB3 /* CatchyLaunch.gif in Resources */ = {isa = PBXBuildFile; fileRef = AAGIFRES5E27DC675608DB3 /* CatchyLaunch.gif */; };
 		BBJPGRES5E27DC675608DB4 /* CatchyMascot.jpg in Resources */ = {isa = PBXBuildFile; fileRef = AAJPGRES5E27DC675608DB4 /* CatchyMascot.jpg */; };
+		BBXCASSETS5E27DC675608D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AAXCASSETS5E27DC675608D /* Assets.xcassets */; };
 		BBGIFVIEW5E27DC675608DB1 /* GIFImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAGIFVIEW5E27DC675608DB1 /* GIFImageView.swift */; };
 		BBSPLASH5E27DC675608DB2 /* LaunchSplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AASPLASH5E27DC675608DB2 /* LaunchSplashView.swift */; };
 		2DF58A88F53F12FED33CC98A /* CatchWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248D560F98AFA77AF479F2CC /* CatchWidget.swift */; };
@@ -104,6 +105,7 @@
 		AA31F5E27DC675608DBEA516 /* CatchyMascotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatchyMascotView.swift; sourceTree = "<group>"; };
 		AAGIFRES5E27DC675608DB3 /* CatchyLaunch.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = CatchyLaunch.gif; sourceTree = "<group>"; };
 		AAJPGRES5E27DC675608DB4 /* CatchyMascot.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = CatchyMascot.jpg; sourceTree = "<group>"; };
+		AAXCASSETS5E27DC675608D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AAGIFVIEW5E27DC675608DB1 /* GIFImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GIFImageView.swift; sourceTree = "<group>"; };
 		AASPLASH5E27DC675608DB2 /* LaunchSplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSplashView.swift; sourceTree = "<group>"; };
 		71675543C5E370E0CDDC5D6F /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 			isa = PBXGroup;
 			children = (
 				88D7626ABDA94A883F5C0334 /* Info.plist */,
+				AAXCASSETS5E27DC675608D /* Assets.xcassets */,
 				E2ED3CDCA821E26DD98FA608 /* App */,
 				83D785C7963445AB0753D957 /* Models */,
 				AARSRC5E27DC675608DB5 /* Resources */,
@@ -398,6 +401,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBXCASSETS5E27DC675608D /* Assets.xcassets in Resources */,
 				BBGIFRES5E27DC675608DB3 /* CatchyLaunch.gif in Resources */,
 				BBJPGRES5E27DC675608DB4 /* CatchyMascot.jpg in Resources */,
 			);
