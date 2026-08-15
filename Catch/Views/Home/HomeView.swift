@@ -67,7 +67,7 @@ public struct HomeView: View {
             // Header Row: App Name with Catchy Mascot & Live Formatted Date
             HStack(alignment: .center) {
                 HStack(spacing: 8) {
-                    CatchyMascotView(pose: .mini, size: 28, animated: true)
+                    CatchyMascotView(pose: .mini, size: 32, animated: true)
 
                     Text("CATCH")
                         .font(.system(size: 20, weight: .black, design: .rounded))
