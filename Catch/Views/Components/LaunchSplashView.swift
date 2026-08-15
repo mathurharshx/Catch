@@ -21,11 +21,13 @@ public struct LaunchSplashView: View {
             VStack(spacing: 16) {
                 Spacer()
 
-                // Animated Catchy Mascot GIF
-                GIFImageView(gifName: "CatchyLaunch.gif")
-                    .frame(width: 220, height: 260)
-                    .scaleEffect(mascotScale)
-                    .opacity(mascotOpacity)
+                // High-Definition Animated Catchy Mascot Video
+                VideoPlayerView(videoName: "highqualitycatchy", videoExtension: "mp4") {
+                    dismissImmediately()
+                }
+                .frame(width: 320, height: 380)
+                .scaleEffect(mascotScale)
+                .opacity(mascotOpacity)
 
                 // Catchy Branding Tagline
                 Text("catchy")
@@ -49,8 +51,8 @@ public struct LaunchSplashView: View {
             dismissImmediately()
         }
         .onAppear {
-            // Auto-dismiss smoothly after 1.4 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
+            // Safety auto-dismiss smoothly after 1.6 seconds if finish event delayed
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
                 dismissImmediately()
             }
         }
