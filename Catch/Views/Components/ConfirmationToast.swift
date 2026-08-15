@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Satisfying instant confirmation toast ("✓ Saved to Notes")
+/// Satisfying instant confirmation toast with Catchy the mascot ("Catchy caught it!")
 public struct ConfirmationToast: View {
     public let message: String
     public let type: CaptureType
@@ -12,21 +12,20 @@ public struct ConfirmationToast: View {
 
     public var body: some View {
         HStack(spacing: 10) {
-            ZStack {
-                Circle()
-                    .fill(type.tintColor)
-                    .frame(width: 24, height: 24)
-
-                Image(systemName: "checkmark")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(.white)
-            }
+            CatchyMascotView(pose: .celebrating, size: 24, animated: true)
 
             Text(message)
                 .font(.system(size: 14, weight: .semibold, design: .rounded))
                 .foregroundColor(Theme.primaryText)
 
             Spacer()
+
+            Image(systemName: "checkmark")
+                .font(.system(size: 10, weight: .bold))
+                .foregroundColor(type.tintColor)
+                .padding(5)
+                .background(type.tintColor.opacity(0.15))
+                .clipShape(Circle())
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)

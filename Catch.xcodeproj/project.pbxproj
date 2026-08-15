@@ -14,6 +14,7 @@
 		226D460A4410DC55A70677EF /* CaptureType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B905E971A2C34A206BBFA10 /* CaptureType.swift */; };
 		22801EC1F2DF2EB194BAE3F8 /* CaptureCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38778EF3EC71507B2BACF64 /* CaptureCardView.swift */; };
 		2CD4EA20324B209086CF34A7 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68933986A7431817F502F717 /* EmptyStateView.swift */; };
+		BB31F5E27DC675608DBEA516 /* CatchyMascotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA31F5E27DC675608DBEA516 /* CatchyMascotView.swift */; };
 		2DF58A88F53F12FED33CC98A /* CatchWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 248D560F98AFA77AF479F2CC /* CatchWidget.swift */; };
 		3B89861FA1FB9932E72089B5 /* HighlightedText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A399CE751D5F63DEEDD6310 /* HighlightedText.swift */; };
 		43B894DE99CBB940C993D8E3 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71675543C5E370E0CDDC5D6F /* MainTabView.swift */; };
@@ -96,6 +97,7 @@
 		6709478D45059F0C5212467F /* CaptureSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureSource.swift; sourceTree = "<group>"; };
 		67CB21AC3777C1BADD696C94 /* TaskCheckboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCheckboxView.swift; sourceTree = "<group>"; };
 		68933986A7431817F502F717 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
+		AA31F5E27DC675608DBEA516 /* CatchyMascotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatchyMascotView.swift; sourceTree = "<group>"; };
 		71675543C5E370E0CDDC5D6F /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		88B93B1A07D08A78D957C073 /* SpeechManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechManager.swift; sourceTree = "<group>"; };
 		88D7626ABDA94A883F5C0334 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -271,6 +273,7 @@
 			children = (
 				5FE609695C8170A1D4FF2FB1 /* AudioWaveformView.swift */,
 				F38778EF3EC71507B2BACF64 /* CaptureCardView.swift */,
+				AA31F5E27DC675608DBEA516 /* CatchyMascotView.swift */,
 				1162E7993380C48259ABD857 /* CategoryBadge.swift */,
 				3DA4831DC5042FB32880EB10 /* ConfirmationToast.swift */,
 				68933986A7431817F502F717 /* EmptyStateView.swift */,
@@ -381,6 +384,7 @@
 				649E6E40DF4A4A596F968826 /* CaptureSource.swift in Sources */,
 				85C1A2D05C774D4FB7C178C2 /* CaptureType.swift in Sources */,
 				1F1C6BDEE3172554C6D6749C /* CatchApp.swift in Sources */,
+				BB31F5E27DC675608DBEA516 /* CatchyMascotView.swift in Sources */,
 				EA7B5A396F329C20741B5D0A /* CategoryBadge.swift in Sources */,
 				026A25B8D5747E2B9D339432 /* CategoryDetector.swift in Sources */,
 				ADA722D01DE8A0B554AD60F8 /* ConfirmationToast.swift in Sources */,

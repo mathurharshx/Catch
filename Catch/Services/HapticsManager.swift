@@ -31,6 +31,12 @@ public final class HapticsManager {
         selectionFeedback.selectionChanged()
     }
 
+    /// Light impact tap
+    public func light() {
+        guard UserSettings.shared.enableHaptics else { return }
+        impactLight.impactOccurred()
+    }
+
     /// Satisfying click when checking/unchecking a task
     public func taskToggled(completed: Bool) {
         guard UserSettings.shared.enableHaptics else { return }

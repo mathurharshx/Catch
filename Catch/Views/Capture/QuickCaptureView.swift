@@ -469,10 +469,10 @@ public struct QuickCaptureView: View {
         // Show satisfying confirmation
         confirmationType = saved.type
         switch saved.type {
-        case .note: confirmationMessage = "Saved to Notes"
-        case .idea: confirmationMessage = "Saved to Ideas"
-        case .task: confirmationMessage = "Task Added"
-        case .expense: confirmationMessage = "Expense Recorded"
+        case .note: confirmationMessage = "Catchy saved your note!"
+        case .idea: confirmationMessage = "Catchy caught your idea!"
+        case .task: confirmationMessage = "Catchy recorded your task!"
+        case .expense: confirmationMessage = "Catchy tracked your expense!"
         }
 
         withAnimation(Theme.springQuick) {

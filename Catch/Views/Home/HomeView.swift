@@ -64,9 +64,11 @@ public struct HomeView: View {
     // MARK: - Hero Capture Command Deck Card
     private var heroCommandDeckCard: some View {
         VStack(spacing: 16) {
-            // Header Row: App Name & Live Formatted Date
+            // Header Row: App Name with Catchy Mascot & Live Formatted Date
             HStack(alignment: .center) {
-                HStack(spacing: 6) {
+                HStack(spacing: 8) {
+                    CatchyMascotView(pose: .mini, size: 28, animated: true)
+
                     Text("CATCH")
                         .font(.system(size: 20, weight: .black, design: .rounded))
                         .tracking(1.2)

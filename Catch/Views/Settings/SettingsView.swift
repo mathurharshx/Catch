@@ -98,10 +98,28 @@ public struct SettingsView: View {
                     }
                 }
 
+                // MARK: - Mascot & Mission
+                Section(header: Text("Meet Catchy")) {
+                    HStack(spacing: 14) {
+                        CatchyMascotView(pose: .standard, size: 52, animated: true)
+
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Catchy the Elephant")
+                                .font(.system(size: 15, weight: .bold, design: .rounded))
+                                .foregroundColor(Theme.primaryText)
+
+                            Text("Because an elephant never forgets. Built for ADHD minds to capture thoughts before they slip away.")
+                                .font(.system(size: 12))
+                                .foregroundColor(Theme.secondaryText)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+
                 // MARK: - Product Identity
                 Section(header: Text("About Catch")) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Catch 1.0 (MVP)")
+                        Text("Catch 1.0")
                             .font(.system(size: 14, weight: .bold, design: .rounded))
                         Text("“Whenever something enters your mind that you want to remember, save it immediately.”")
                             .font(.system(size: 12))
