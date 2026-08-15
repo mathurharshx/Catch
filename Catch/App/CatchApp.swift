@@ -6,6 +6,8 @@ struct CatchApp: App {
     @StateObject private var userSettings = UserSettings.shared
     @State private var captureSheetConfig: CaptureSheetConfig? = nil
 
+    @State private var showSplash: Bool = true
+
     init() {
         // Configure standard appearance
         let appearance = UINavigationBarAppearance()
@@ -16,19 +18,30 @@ struct CatchApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MainTabView(captureSheetConfig: $captureSheetConfig)
-                .onAppear {
-                    if userSettings.openCaptureOnColdLaunch {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            if captureSheetConfig == nil {
-                                captureSheetConfig = CaptureSheetConfig()
+            ZStack {
+                MainTabView(captureSheetConfig: $captureSheetConfig)
+
+                if showSplash {
+                    LaunchSplashView {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            showSplash = false
+                        }
+                        if userSettings.openCaptureOnColdLaunch {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                if captureSheetConfig == nil {
+                                    captureSheetConfig = CaptureSheetConfig()
+                                }
                             }
                         }
                     }
+                    .transition(.opacity)
+                    .zIndex(999)
                 }
-                .onOpenURL { url in
-                    handleDeepLink(url: url)
-                }
+            }
+            .onOpenURL { url in
+                showSplash = false
+                handleDeepLink(url: url)
+            }
         }
     }
 

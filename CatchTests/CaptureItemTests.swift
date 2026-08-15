@@ -33,4 +33,12 @@ final class CaptureItemTests: XCTestCase {
         item.amount = 15.50
         XCTAssertEqual(item.formattedAmount, "$15.50")
     }
+
+    func testGIFDecoding() {
+        let image = GIFImageView.loadAnimatedImage(name: "CatchyLaunch.gif")
+        XCTAssertNotNil(image, "GIF animated image should be loaded successfully")
+        if let img = image {
+            print("Successfully loaded GIF image with size: \(img.size)")
+        }
+    }
 }
