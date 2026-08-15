@@ -5,15 +5,18 @@ import AVFoundation
 public struct VideoPlayerView: UIViewRepresentable {
     public let videoName: String
     public let videoExtension: String
+    public let videoGravity: AVLayerVideoGravity
     public let onFinished: (() -> Void)?
 
     public init(
         videoName: String = "highqualitycatchy",
         videoExtension: String = "mp4",
+        videoGravity: AVLayerVideoGravity = .resizeAspectFill,
         onFinished: (() -> Void)? = nil
     ) {
         self.videoName = videoName.replacingOccurrences(of: ".\(videoExtension)", with: "")
         self.videoExtension = videoExtension
+        self.videoGravity = videoGravity
         self.onFinished = onFinished
     }
 
@@ -22,7 +25,7 @@ public struct VideoPlayerView: UIViewRepresentable {
         container.backgroundColor = .clear
 
         if let url = resolveVideoURL() {
-            container.setupPlayer(with: url, onFinished: onFinished)
+            container.setupPlayer(with: url, videoGravity: videoGravity, onFinished: onFinished)
         }
         return container
     }
@@ -67,7 +70,7 @@ public struct VideoPlayerView: UIViewRepresentable {
             backgroundColor = .clear
         }
 
-        public func setupPlayer(with url: URL, onFinished: (() -> Void)?) {
+        public func setupPlayer(with url: URL, videoGravity: AVLayerVideoGravity = .resizeAspectFill, onFinished: (() -> Void)?) {
             self.onFinished = onFinished
             let item = AVPlayerItem(url: url)
             let player = AVPlayer(playerItem: item)
@@ -77,7 +80,7 @@ public struct VideoPlayerView: UIViewRepresentable {
 
             if let layer = self.layer as? AVPlayerLayer {
                 layer.player = player
-                layer.videoGravity = .resizeAspect
+                layer.videoGravity = videoGravity
                 layer.backgroundColor = UIColor.clear.cgColor
             }
 

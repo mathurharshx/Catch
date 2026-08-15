@@ -18,23 +18,25 @@ public struct LaunchSplashView: View {
             Theme.background
                 .ignoresSafeArea()
 
-            VStack(spacing: 16) {
+            VStack(spacing: 8) {
                 Spacer()
 
-                // High-Definition Animated Catchy Mascot Video
+                // High-Definition Animated Catchy Mascot Video (Cropped to mascot bounds)
                 VideoPlayerView(videoName: "highqualitycatchy", videoExtension: "mp4") {
                     dismissImmediately()
                 }
-                .frame(width: 320, height: 380)
+                .frame(width: 300, height: 270)
+                .clipped()
                 .scaleEffect(mascotScale)
                 .opacity(mascotOpacity)
 
-                // Catchy Branding Tagline
+                // Catchy Branding Tagline directly below mascot
                 Text("catchy")
                     .font(.system(size: 32, weight: .black, design: .rounded))
                     .foregroundColor(Theme.primaryText)
                     .tracking(1.5)
                     .opacity(textOpacity)
+                    .padding(.top, 4)
 
                 Spacer()
 
