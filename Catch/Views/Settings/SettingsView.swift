@@ -101,7 +101,7 @@ public struct SettingsView: View {
                 // MARK: - Mascot & Mission
                 Section(header: Text("Meet Catchy")) {
                     HStack(spacing: 14) {
-                        CatchyMascotView(pose: .standard, size: 52, animated: true)
+                        CatchyMascotView(pose: .noteTaker, size: 56, animated: true)
 
                         VStack(alignment: .leading, spacing: 3) {
                             Text("Catchy the Elephant")
