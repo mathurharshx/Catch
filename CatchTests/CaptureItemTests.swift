@@ -34,6 +34,30 @@ final class CaptureItemTests: XCTestCase {
         XCTAssertEqual(item.formattedAmount, "$15.50")
     }
 
+    func testChecklistItems() throws {
+        let checklist = [
+            ChecklistItem(title: "Milk", isCompleted: true),
+            ChecklistItem(title: "Eggs", isCompleted: false),
+            ChecklistItem(title: "Bread", isCompleted: false)
+        ]
+
+        let item = CaptureItem(
+            type: .task,
+            content: "Grocery Shopping",
+            checklistItems: checklist
+        )
+
+        XCTAssertEqual(item.totalChecklistCount, 3)
+        XCTAssertEqual(item.completedChecklistCount, 1)
+
+        let data = try JSONEncoder().encode(item)
+        let decoded = try JSONDecoder().decode(CaptureItem.self, from: data)
+
+        XCTAssertEqual(decoded.checklistItems?.count, 3)
+        XCTAssertEqual(decoded.checklistItems?[0].title, "Milk")
+        XCTAssertEqual(decoded.checklistItems?[0].isCompleted, true)
+    }
+
     func testGIFDecoding() {
         let image = GIFImageView.loadAnimatedImage(name: "CatchyLaunch.gif")
         XCTAssertNotNil(image, "GIF animated image should be loaded successfully")

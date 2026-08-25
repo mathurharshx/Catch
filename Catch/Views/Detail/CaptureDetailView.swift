@@ -12,6 +12,8 @@ public struct CaptureDetailView: View {
     @State private var editedAmountString: String
     @State private var editedMerchant: String
     @State private var editedReminderDate: Date?
+    @State private var editedChecklist: [ChecklistItem]
+    @State private var newChecklistTitle: String = ""
     @State private var showDeleteConfirmation: Bool = false
     @State private var showDatePicker: Bool = false
 
@@ -22,6 +24,7 @@ public struct CaptureDetailView: View {
         _editedAmountString = State(initialValue: item.amount.map { "\($0)" } ?? "")
         _editedMerchant = State(initialValue: item.merchant ?? "")
         _editedReminderDate = State(initialValue: item.reminderDate)
+        _editedChecklist = State(initialValue: item.checklistItems ?? [])
     }
 
     public var body: some View {
@@ -63,7 +66,7 @@ public struct CaptureDetailView: View {
 
                             TextEditor(text: $editedContent)
                                 .font(.system(size: 16))
-                                .frame(minHeight: 120)
+                                .frame(minHeight: 100)
                                 .padding(12)
                                 .background(Theme.secondaryBackground)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -83,6 +86,75 @@ public struct CaptureDetailView: View {
                             .padding(14)
                             .background(Theme.secondaryBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .padding(.horizontal, 20)
+
+                            // Subtask Checklist Editor
+                            VStack(alignment: .leading, spacing: 10) {
+                                HStack {
+                                    Text("CHECKLIST ITEMS")
+                                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                                        .foregroundColor(Theme.secondaryText)
+                                    Spacer()
+                                    if !editedChecklist.isEmpty {
+                                        Text("\(editedChecklist.filter { $0.isCompleted }.count)/\(editedChecklist.count) done")
+                                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                                            .foregroundColor(Theme.accentSuccess)
+                                    }
+                                }
+
+                                ForEach(Array(editedChecklist.enumerated()), id: \.element.id) { index, checkItem in
+                                    HStack(spacing: 10) {
+                                        Button(action: {
+                                            HapticsManager.shared.taskToggled(completed: !checkItem.isCompleted)
+                                            editedChecklist[index].isCompleted.toggle()
+                                        }) {
+                                            Image(systemName: checkItem.isCompleted ? "checkmark.circle.fill" : "circle")
+                                                .font(.system(size: 18))
+                                                .foregroundColor(checkItem.isCompleted ? Theme.accentSuccess : Theme.secondaryText)
+                                        }
+                                        .buttonStyle(.plain)
+
+                                        TextField("Checklist item", text: $editedChecklist[index].title)
+                                            .font(.system(size: 15))
+                                            .strikethrough(checkItem.isCompleted)
+
+                                        Button(action: {
+                                            HapticsManager.shared.light()
+                                            editedChecklist.remove(at: index)
+                                        }) {
+                                            Image(systemName: "trash")
+                                                .font(.system(size: 13))
+                                                .foregroundColor(Theme.tertiaryText)
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                    .padding(12)
+                                    .background(Theme.secondaryBackground)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                }
+
+                                // Add new item row
+                                HStack(spacing: 10) {
+                                    Image(systemName: "plus.circle.fill")
+                                        .foregroundColor(Theme.accentSuccess)
+                                    TextField("Add subtask...", text: $newChecklistTitle)
+                                        .font(.system(size: 15))
+                                        .onSubmit {
+                                            addChecklistItem()
+                                        }
+
+                                    if !newChecklistTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                        Button("Add") {
+                                            addChecklistItem()
+                                        }
+                                        .font(.system(size: 13, weight: .bold))
+                                        .foregroundColor(Theme.accentSuccess)
+                                    }
+                                }
+                                .padding(12)
+                                .background(Theme.secondaryBackground.opacity(0.6))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
                             .padding(.horizontal, 20)
                         }
 
@@ -267,11 +339,23 @@ public struct CaptureDetailView: View {
         }
     }
 
+    private func addChecklistItem() {
+        let trimmed = newChecklistTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        HapticsManager.shared.light()
+        editedChecklist.append(ChecklistItem(title: trimmed, isCompleted: false))
+        newChecklistTitle = ""
+    }
+
     private func saveChanges() {
         var updated = item
         updated.content = editedContent.trimmingCharacters(in: .whitespacesAndNewlines)
         updated.type = editedType
         updated.reminderDate = editedReminderDate
+
+        if editedType == .task {
+            updated.checklistItems = editedChecklist.isEmpty ? nil : editedChecklist
+        }
 
         if editedType == .expense {
             updated.amount = Double(editedAmountString)

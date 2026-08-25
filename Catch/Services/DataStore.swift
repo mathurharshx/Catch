@@ -19,6 +19,21 @@ public final class DataStore: ObservableObject {
         // If empty on very first install, load initial sample starter capture
         if items.isEmpty {
             loadInitialDemoDataIfNeeded()
+        } else if !items.contains(where: { $0.checklistItems != nil && !$0.checklistItems!.isEmpty }) {
+            let checklistTask = CaptureItem(
+                type: .task,
+                content: "Prepare for client launch",
+                createdAt: Date().addingTimeInterval(-1800),
+                source: .text,
+                isCompleted: false,
+                checklistItems: [
+                    ChecklistItem(title: "Finalize Figma brand assets", isCompleted: true),
+                    ChecklistItem(title: "Review analytics dashboard", isCompleted: false),
+                    ChecklistItem(title: "Send onboarding invite", isCompleted: false)
+                ]
+            )
+            items.insert(checklistTask, at: 0)
+            persistItems()
         }
     }
 
@@ -45,6 +60,7 @@ public final class DataStore: ObservableObject {
         merchant: String? = nil,
         expenseCategory: String? = nil,
         reminderDate: Date? = nil,
+        checklistItems: [ChecklistItem]? = nil,
         transcription: String? = nil
     ) -> CaptureItem {
         let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -70,6 +86,7 @@ public final class DataStore: ObservableObject {
             source: source,
             isCompleted: false,
             reminderDate: reminderDate,
+            checklistItems: checklistItems,
             amount: finalAmount,
             currency: finalCurrency ?? UserSettings.shared.defaultCurrency,
             merchant: finalMerchant,
@@ -117,10 +134,40 @@ public final class DataStore: ObservableObject {
     public func toggleTask(id: UUID) {
         guard let index = items.firstIndex(where: { $0.id == id }) else { return }
         items[index].isCompleted.toggle()
-        items[index].updatedAt = Date()
         let isNowCompleted = items[index].isCompleted
+
+        // If toggling parent task, also update all sub-items accordingly
+        if let checklist = items[index].checklistItems, !checklist.isEmpty {
+            items[index].checklistItems = checklist.map { item in
+                var updatedItem = item
+                updatedItem.isCompleted = isNowCompleted
+                return updatedItem
+            }
+        }
+
+        items[index].updatedAt = Date()
         persistItems()
         HapticsManager.shared.taskToggled(completed: isNowCompleted)
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    /// Toggles the completion status of an individual sub-task checklist item
+    public func toggleChecklistItem(itemId: UUID, checklistItemId: UUID) {
+        guard let itemIndex = items.firstIndex(where: { $0.id == itemId }) else { return }
+        guard var checklist = items[itemIndex].checklistItems,
+              let checkIndex = checklist.firstIndex(where: { $0.id == checklistItemId }) else { return }
+
+        checklist[checkIndex].isCompleted.toggle()
+        let isNowDone = checklist[checkIndex].isCompleted
+        items[itemIndex].checklistItems = checklist
+
+        // If all subtasks completed, auto-complete parent task; otherwise un-complete
+        let allCompleted = checklist.allSatisfy { $0.isCompleted }
+        items[itemIndex].isCompleted = allCompleted
+
+        items[itemIndex].updatedAt = Date()
+        persistItems()
+        HapticsManager.shared.taskToggled(completed: isNowDone)
         WidgetCenter.shared.reloadAllTimelines()
     }
 
@@ -273,6 +320,18 @@ public final class DataStore: ObservableObject {
 
     private func loadInitialDemoDataIfNeeded() {
         let sampleItems = [
+            CaptureItem(
+                type: .task,
+                content: "Prepare for client launch",
+                createdAt: Date().addingTimeInterval(-1800),
+                source: .text,
+                isCompleted: false,
+                checklistItems: [
+                    ChecklistItem(title: "Finalize Figma brand assets", isCompleted: true),
+                    ChecklistItem(title: "Review analytics dashboard", isCompleted: false),
+                    ChecklistItem(title: "Send onboarding invite", isCompleted: false)
+                ]
+            ),
             CaptureItem(
                 type: .task,
                 content: "Buy toothpaste",

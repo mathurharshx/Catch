@@ -1,5 +1,18 @@
 import Foundation
 
+/// Individual sub-task checklist item within a Task capture.
+public struct ChecklistItem: Identifiable, Codable, Equatable, Hashable, Sendable {
+    public let id: UUID
+    public var title: String
+    public var isCompleted: Bool
+
+    public init(id: UUID = UUID(), title: String, isCompleted: Bool = false) {
+        self.id = id
+        self.title = title
+        self.isCompleted = isCompleted
+    }
+}
+
 /// Core data model representing any captured item in Catch.
 /// Designed according to the "Capture First, Organize Later" philosophy.
 /// Preserves the verbatim original raw text while allowing structured metadata.
@@ -12,6 +25,9 @@ public struct CaptureItem: Identifiable, Codable, Equatable, Hashable, Sendable 
     public var source: CaptureSource
     public var isCompleted: Bool // Relevant for tasks
     public var reminderDate: Date? // Local notification trigger
+
+    // Task-specific checklist / subtasks
+    public var checklistItems: [ChecklistItem]?
 
     // Expense-specific structured fields
     public var amount: Double?
@@ -35,6 +51,7 @@ public struct CaptureItem: Identifiable, Codable, Equatable, Hashable, Sendable 
         source: CaptureSource = .text,
         isCompleted: Bool = false,
         reminderDate: Date? = nil,
+        checklistItems: [ChecklistItem]? = nil,
         amount: Double? = nil,
         currency: String? = nil,
         merchant: String? = nil,
@@ -51,6 +68,7 @@ public struct CaptureItem: Identifiable, Codable, Equatable, Hashable, Sendable 
         self.source = source
         self.isCompleted = isCompleted
         self.reminderDate = reminderDate
+        self.checklistItems = checklistItems
         self.amount = amount
         self.currency = currency
         self.merchant = merchant
@@ -70,6 +88,16 @@ public struct CaptureItem: Identifiable, Codable, Equatable, Hashable, Sendable 
         formatter.minimumFractionDigits = (amount.truncatingRemainder(dividingBy: 1) == 0) ? 0 : 2
         let numberString = formatter.string(from: NSNumber(value: amount)) ?? "\(amount)"
         return "\(symbol)\(numberString)"
+    }
+
+    /// Count of completed checklist items
+    public var completedChecklistCount: Int {
+        checklistItems?.filter { $0.isCompleted }.count ?? 0
+    }
+
+    /// Total count of checklist items
+    public var totalChecklistCount: Int {
+        checklistItems?.count ?? 0
     }
 
     /// Relative or readable time formatted
@@ -110,4 +138,3 @@ public struct CaptureSheetConfig: Identifiable, Equatable, Hashable, Sendable {
         self.source = source
     }
 }
-

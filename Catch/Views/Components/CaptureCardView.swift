@@ -38,7 +38,7 @@ public struct CaptureCardView: View {
                 }
 
                 // Main Content & Metadata
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 8) {
                     // Content text with search term highlighting
                     HighlightedText(
                         text: item.content,
@@ -50,9 +50,51 @@ public struct CaptureCardView: View {
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
 
-                    // Footer row: Category, Source, Expense amount, Reminder, Timestamp
+                    // Subtask Checklist Items (if present)
+                    if let checklist = item.checklistItems, !checklist.isEmpty {
+                        VStack(alignment: .leading, spacing: 6) {
+                            ForEach(checklist) { checkItem in
+                                HStack(spacing: 8) {
+                                    Button(action: {
+                                        DataStore.shared.toggleChecklistItem(itemId: item.id, checklistItemId: checkItem.id)
+                                    }) {
+                                        Image(systemName: checkItem.isCompleted ? "checkmark.circle.fill" : "circle")
+                                            .font(.system(size: 14, weight: .medium))
+                                            .foregroundColor(checkItem.isCompleted ? Theme.accentSuccess : Theme.secondaryText)
+                                    }
+                                    .buttonStyle(.plain)
+
+                                    Text(checkItem.title)
+                                        .font(.system(size: 13, weight: .regular))
+                                        .strikethrough(checkItem.isCompleted)
+                                        .foregroundColor(checkItem.isCompleted ? Theme.secondaryText : Theme.primaryText)
+                                        .lineLimit(1)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 8)
+                        .background(Theme.secondaryBackground.opacity(0.5))
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    }
+
+                    // Footer row: Category, Checklist progress, Source, Expense amount, Reminder, Timestamp
                     HStack(spacing: 8) {
                         CategoryBadge(type: item.type, isSelected: false, showText: true)
+
+                        if item.totalChecklistCount > 0 {
+                            HStack(spacing: 4) {
+                                Image(systemName: "checklist")
+                                    .font(.system(size: 10))
+                                Text("\(item.completedChecklistCount)/\(item.totalChecklistCount)")
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                            }
+                            .foregroundColor(item.completedChecklistCount == item.totalChecklistCount ? Theme.accentSuccess : Theme.secondaryText)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Theme.secondaryBackground)
+                            .clipShape(Capsule())
+                        }
 
                         if let formattedAmount = item.formattedAmount {
                             Text(formattedAmount)

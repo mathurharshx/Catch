@@ -15,6 +15,11 @@ public struct QuickCaptureView: View {
     @State private var captureSource: CaptureSource = .text
     @State private var hasManuallySelectedCategory: Bool = false
 
+    // Task-specific Checklist State
+    @State private var checklistDrafts: [String] = []
+    @State private var newChecklistDraft: String = ""
+    @FocusState private var isChecklistFieldFocused: Bool
+
     // Optional Expense Specific State
     @State private var expenseAmountString: String = ""
     @State private var expenseMerchant: String = ""
@@ -36,6 +41,11 @@ public struct QuickCaptureView: View {
         _selectedCategory = State(initialValue: initialCat)
         _captureSource = State(initialValue: initialSource)
         _hasManuallySelectedCategory = State(initialValue: initialCategory != nil)
+    }
+
+    private var isContentEmpty: Bool {
+        textContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        (selectedCategory != .task || (checklistDrafts.isEmpty && newChecklistDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty))
     }
 
     public var body: some View {
@@ -88,7 +98,7 @@ public struct QuickCaptureView: View {
                                     .font(.system(size: 18, weight: .regular))
                                     .scrollContentBackground(.hidden)
                                     .focused($isTextFieldFocused)
-                                    .frame(minHeight: 120, maxHeight: 220)
+                                    .frame(minHeight: selectedCategory == .task ? 80 : 120, maxHeight: 200)
                                     .onChange(of: textContent) { oldValue, newValue in
                                         handleTextChange(newValue)
                                     }
@@ -101,6 +111,12 @@ public struct QuickCaptureView: View {
                                     .frame(maxWidth: .infinity)
                                     .padding(.horizontal, 16)
                                     .transition(.scale.combined(with: .opacity))
+                            }
+
+                            // Task Checklist Section when in Task Mode
+                            if selectedCategory == .task {
+                                taskChecklistSection
+                                    .transition(.opacity.combined(with: .move(edge: .top)))
                             }
 
                             // Optional Expense Fields when in Expense Mode
@@ -138,11 +154,12 @@ public struct QuickCaptureView: View {
                             }
                         }
                         .padding(.top, 12)
+                        .padding(.bottom, 20)
                     }
 
                     Spacer()
 
-                    // Bottom Action Toolbar (Voice, Reminder, Save)
+                    // Bottom Action Toolbar (Voice, Reminder, Checklist Add, Keyboard Dismiss)
                     bottomActionToolbar
                 }
 
@@ -171,21 +188,32 @@ public struct QuickCaptureView: View {
                     }
                 }
 
+                // Clean Native Apple-Styled Save Action Button
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         saveCapture()
                     }) {
-                        Text("Save")
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 6)
-                            .background(
-                                Capsule()
-                                    .fill(textContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.gray.opacity(0.5) : selectedCategory.tintColor)
-                            )
+                        HStack(spacing: 5) {
+                            Text("Save")
+                                .font(.system(size: 15, weight: .bold, design: .rounded))
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 7)
+                        .background(
+                            Capsule()
+                                .fill(isContentEmpty ? Color.gray.opacity(0.35) : selectedCategory.tintColor)
+                        )
+                        .shadow(
+                            color: isContentEmpty ? Color.clear : selectedCategory.tintColor.opacity(0.28),
+                            radius: 5,
+                            x: 0,
+                            y: 2
+                        )
                     }
-                    .disabled(textContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .buttonStyle(.plain)
+                    .disabled(isContentEmpty)
+                    .animation(.easeInOut(duration: 0.18), value: isContentEmpty)
                 }
             }
             .sheet(isPresented: $showReminderPicker) {
@@ -204,6 +232,106 @@ public struct QuickCaptureView: View {
                 textContent = newTranscript
                 captureSource = .voice
             }
+        }
+    }
+
+    // MARK: - Task Checklist Section
+    private var taskChecklistSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                HStack(spacing: 6) {
+                    Image(systemName: "checklist")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(Theme.accentSuccess)
+
+                    Text("CHECKLIST ITEMS")
+                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .foregroundColor(Theme.secondaryText)
+                }
+
+                Spacer()
+
+                if !checklistDrafts.isEmpty {
+                    Text("\(checklistDrafts.count) items")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundColor(Theme.tertiaryText)
+                }
+            }
+            .padding(.horizontal, 16)
+
+            // Existing added checklist items
+            ForEach(Array(checklistDrafts.enumerated()), id: \.offset) { index, item in
+                HStack(spacing: 10) {
+                    Circle()
+                        .stroke(Theme.accentSuccess, lineWidth: 1.5)
+                        .frame(width: 18, height: 18)
+
+                    Text(item)
+                        .font(.system(size: 15, weight: .regular))
+                        .foregroundColor(Theme.primaryText)
+
+                    Spacer()
+
+                    Button(action: {
+                        HapticsManager.shared.light()
+                        checklistDrafts.remove(at: index)
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 16))
+                            .foregroundColor(Theme.tertiaryText)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(Theme.secondaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .padding(.horizontal, 16)
+            }
+
+            // Quick-add next checklist item row
+            HStack(spacing: 10) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(Theme.accentSuccess)
+
+                TextField("Add checklist item...", text: $newChecklistDraft)
+                    .font(.system(size: 15))
+                    .focused($isChecklistFieldFocused)
+                    .onSubmit {
+                        addChecklistDraft()
+                    }
+
+                if !newChecklistDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Button(action: {
+                        addChecklistDraft()
+                    }) {
+                        Text("Add")
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .foregroundColor(Theme.accentSuccess)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(Theme.accentSuccess.opacity(0.12))
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(Theme.secondaryBackground.opacity(0.7))
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .padding(.horizontal, 16)
+        }
+    }
+
+    private func addChecklistDraft() {
+        let trimmed = newChecklistDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        HapticsManager.shared.light()
+        withAnimation(Theme.springQuick) {
+            checklistDrafts.append(trimmed)
+            newChecklistDraft = ""
         }
     }
 
@@ -240,13 +368,13 @@ public struct QuickCaptureView: View {
         .padding(.horizontal, 16)
     }
 
-    // MARK: - Bottom Toolbar
+    // MARK: - Bottom Toolbar (Cleaned of duplicate save button)
     private var bottomActionToolbar: some View {
         VStack(spacing: 0) {
             Divider()
                 .background(Theme.border)
 
-            HStack(spacing: 20) {
+            HStack(spacing: 16) {
                 // Voice Mic Button
                 Button(action: {
                     toggleVoiceRecording()
@@ -280,41 +408,43 @@ public struct QuickCaptureView: View {
                 }
                 .buttonStyle(.plain)
 
+                // 1-Tap Task Checklist Tool (When in Task mode)
+                if selectedCategory == .task {
+                    Button(action: {
+                        HapticsManager.shared.light()
+                        isChecklistFieldFocused = true
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checklist")
+                                .font(.system(size: 14, weight: .bold))
+                            Text("Checklist")
+                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                        }
+                        .foregroundColor(Theme.accentSuccess)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Theme.accentSuccess.opacity(0.12))
+                        .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .transition(.scale.combined(with: .opacity))
+                }
+
                 Spacer()
 
                 // Keyboard dismiss if focused
-                if isTextFieldFocused {
+                if isTextFieldFocused || isChecklistFieldFocused {
                     Button(action: {
                         isTextFieldFocused = false
+                        isChecklistFieldFocused = false
                     }) {
                         Image(systemName: "keyboard.chevron.compact.down")
                             .font(.system(size: 18))
                             .foregroundColor(Theme.secondaryText)
+                            .padding(8)
                     }
                     .buttonStyle(.plain)
                 }
-
-                // Instant Save Action
-                Button(action: {
-                    saveCapture()
-                }) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 14, weight: .bold))
-
-                        Text("Save")
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
-                    }
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 18)
-                    .padding(.vertical, 11)
-                    .background(
-                        Capsule()
-                            .fill(textContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.gray.opacity(0.4) : selectedCategory.tintColor)
-                    )
-                }
-                .buttonStyle(.plain)
-                .disabled(textContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 10)
@@ -442,7 +572,19 @@ public struct QuickCaptureView: View {
     }
 
     private func saveCapture() {
-        let trimmed = textContent.trimmingCharacters(in: .whitespacesAndNewlines)
+        var trimmed = textContent.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Include any pending draft item in the checklist
+        var finalChecklistDrafts = checklistDrafts
+        let pendingDraft = newChecklistDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !pendingDraft.isEmpty {
+            finalChecklistDrafts.append(pendingDraft)
+        }
+
+        if trimmed.isEmpty && selectedCategory == .task && !finalChecklistDrafts.isEmpty {
+            trimmed = finalChecklistDrafts.first ?? "Task Checklist"
+        }
+
         guard !trimmed.isEmpty else { return }
 
         if speechManager.isRecording {
@@ -454,6 +596,9 @@ public struct QuickCaptureView: View {
             amount = explicitAmount
         }
 
+        let checklistItems: [ChecklistItem]? = selectedCategory == .task && !finalChecklistDrafts.isEmpty ?
+            finalChecklistDrafts.map { ChecklistItem(title: $0, isCompleted: false) } : nil
+
         let saved = dataStore.save(
             content: trimmed,
             type: selectedCategory,
@@ -463,6 +608,7 @@ public struct QuickCaptureView: View {
             merchant: expenseMerchant.isEmpty ? nil : expenseMerchant,
             expenseCategory: expenseCategoryTag.isEmpty ? nil : expenseCategoryTag,
             reminderDate: reminderDate,
+            checklistItems: checklistItems,
             transcription: captureSource == .voice ? trimmed : nil
         )
 
@@ -471,7 +617,7 @@ public struct QuickCaptureView: View {
         switch saved.type {
         case .note: confirmationMessage = "Catchy saved your note!"
         case .idea: confirmationMessage = "Catchy caught your idea!"
-        case .task: confirmationMessage = "Catchy recorded your task!"
+        case .task: confirmationMessage = checklistItems != nil ? "Catchy created your checklist!" : "Catchy recorded your task!"
         case .expense: confirmationMessage = "Catchy tracked your expense!"
         }
 

@@ -46,4 +46,35 @@ final class DataStoreTests: XCTestCase {
 
         store.delete(id: item.id)
     }
+
+    func testChecklistSubtaskToggle() {
+        let store = DataStore.shared
+        let checklist = [
+            ChecklistItem(title: "Step 1", isCompleted: false),
+            ChecklistItem(title: "Step 2", isCompleted: false)
+        ]
+
+        let item = store.save(
+            content: "Multi-step Task",
+            type: .task,
+            checklistItems: checklist
+        )
+
+        let step1Id = item.checklistItems![0].id
+        let step2Id = item.checklistItems![1].id
+
+        // Toggle step 1
+        store.toggleChecklistItem(itemId: item.id, checklistItemId: step1Id)
+        var currentItem = store.items.first(where: { $0.id == item.id })
+        XCTAssertTrue(currentItem?.checklistItems?.first(where: { $0.id == step1Id })?.isCompleted == true)
+        XCTAssertFalse(currentItem?.isCompleted == true)
+
+        // Toggle step 2 -> all subtasks done -> parent task should be marked completed
+        store.toggleChecklistItem(itemId: item.id, checklistItemId: step2Id)
+        currentItem = store.items.first(where: { $0.id == item.id })
+        XCTAssertTrue(currentItem?.isCompleted == true)
+
+        // Clean up
+        store.delete(id: item.id)
+    }
 }
