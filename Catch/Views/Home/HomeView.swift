@@ -34,10 +34,9 @@ public struct HomeView: View {
                     // MARK: - 3. Smooth Scrollable Feed (120Hz ProMotion)
                     ScrollView(.vertical, showsIndicators: true) {
                         LazyVStack(alignment: .leading, spacing: 20) {
-                            // Quick Capture Command Card
+                            // Quick Capture Command Card (Aligned with feed cards)
                             heroCommandDeckCard
-                                .padding(.horizontal, 18)
-                                .padding(.top, 12)
+                                .padding(.top, 8)
 
                             // Content Sections
                             if dataStore.items.isEmpty {
@@ -145,7 +144,7 @@ public struct HomeView: View {
 
     // MARK: - Hero Quick Capture Command Card
     private var heroCommandDeckCard: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 12) {
             // Central Quick Capture Input Capsule
             Button(action: {
                 HapticsManager.shared.categorySelected()
@@ -197,15 +196,7 @@ public struct HomeView: View {
             }
         }
         .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(Theme.cardBackground)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(Theme.border, lineWidth: 1)
-                )
-                .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 3)
-        )
+        .catchCard(cornerRadius: Theme.cornerRadiusLarge)
     }
 
     private func categoryShortcutPill(type: CaptureType) -> some View {
@@ -213,19 +204,22 @@ public struct HomeView: View {
             HapticsManager.shared.categorySelected()
             captureSheetConfig = CaptureSheetConfig(category: type)
         }) {
-            HStack(spacing: 4) {
+            HStack(spacing: 5) {
                 Image(systemName: type.iconName)
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(.system(size: 11, weight: .semibold))
                 Text(type.displayName)
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.8)
             }
             .foregroundColor(type.tintColor)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
+            .padding(.vertical, 9)
             .background(type.tintColor.opacity(0.10))
-            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 11, style: .continuous)
+                    .stroke(type.tintColor.opacity(0.20), lineWidth: 0.8)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
         }
         .buttonStyle(.plain)
     }
