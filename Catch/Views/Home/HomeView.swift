@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The minimalist Home screen showing recent captures grouped cleanly.
+/// The minimalist Home screen featuring a pinned top header, sticky category filters, and 120Hz smooth scrolling.
 public struct HomeView: View {
     @ObservedObject private var dataStore = DataStore.shared
     @ObservedObject private var userSettings = UserSettings.shared
@@ -24,33 +24,41 @@ public struct HomeView: View {
             ZStack {
                 Theme.background.ignoresSafeArea()
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
-                        // Hero Capture Command Deck Card (Uses top space effectively)
-                        heroCommandDeckCard
+                VStack(spacing: 0) {
+                    // MARK: - 1. Pinned Top Brand & Action Header (Attached to Top)
+                    topPinnedHeader
 
-                        // Category Quick Filter Pills
-                        categoryFilterBar
+                    // MARK: - 2. Pinned Category Filter Bar (Attached to Top)
+                    pinnedCategoryFilterBar
 
-                        // Content Sections
-                        if dataStore.items.isEmpty {
-                            EmptyStateView(
-                                icon: "bolt.badge.clock",
-                                title: "Your personal capture inbox is empty",
-                                subtitle: "Tap any category above or start typing to capture your first thought."
-                            )
-                            .padding(.top, 30)
-                        } else {
-                            if let filter = activeCategoryFilter {
-                                filteredSection(for: filter)
+                    // MARK: - 3. Smooth Scrollable Feed (120Hz ProMotion)
+                    ScrollView(.vertical, showsIndicators: true) {
+                        LazyVStack(alignment: .leading, spacing: 20) {
+                            // Quick Capture Command Card
+                            heroCommandDeckCard
+                                .padding(.horizontal, 18)
+                                .padding(.top, 12)
+
+                            // Content Sections
+                            if dataStore.items.isEmpty {
+                                EmptyStateView(
+                                    icon: "bolt.badge.clock",
+                                    title: "Your personal capture inbox is empty",
+                                    subtitle: "Tap any category above or start typing to capture your first thought."
+                                )
+                                .padding(.top, 30)
                             } else {
-                                defaultOverviewSections
+                                if let filter = activeCategoryFilter {
+                                    filteredSection(for: filter)
+                                } else {
+                                    defaultOverviewSections
+                                }
                             }
                         }
+                        .padding(.horizontal, 18)
+                        .padding(.top, 4)
+                        .padding(.bottom, 95)
                     }
-                    .padding(.horizontal, 18)
-                    .padding(.top, 10)
-                    .padding(.bottom, 80)
                 }
             }
             .navigationBarHidden(true)
@@ -61,36 +69,83 @@ public struct HomeView: View {
         .navigationViewStyle(.stack)
     }
 
-    // MARK: - Hero Capture Command Deck Card
-    private var heroCommandDeckCard: some View {
-        VStack(spacing: 16) {
-            // Header Row: App Name with Catchy Mascot & Live Formatted Date
-            HStack(alignment: .center) {
-                HStack(spacing: 8) {
-                    CatchyMascotView(pose: .catching, size: 34, animated: true)
+    // MARK: - Pinned Top Header (Attached to top)
+    private var topPinnedHeader: some View {
+        HStack(alignment: .center, spacing: 10) {
+            // Mascot & App Title
+            HStack(spacing: 8) {
+                CatchyMascotView(pose: .catching, size: 34, animated: true)
 
-                    Text("Catch")
-                        .font(.system(size: 22, weight: .black, design: .rounded))
-                        .foregroundColor(Theme.primaryText)
-                }
-
-                Spacer()
-
-                HStack(spacing: 5) {
-                    Image(systemName: "calendar")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(Theme.secondaryText)
-
-                    Text(formattedTodayDate)
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
-                        .foregroundColor(Theme.secondaryText)
-                }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(Theme.secondaryBackground)
-                .clipShape(Capsule())
+                Text("Catch")
+                    .font(.system(size: 22, weight: .black, design: .rounded))
+                    .foregroundColor(Theme.primaryText)
             }
 
+            Spacer()
+
+            // Date Badge
+            HStack(spacing: 5) {
+                Image(systemName: "calendar")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(Theme.secondaryText)
+
+                Text(formattedTodayDate)
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .foregroundColor(Theme.secondaryText)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(Theme.secondaryBackground)
+            .clipShape(Capsule())
+        }
+        .padding(.horizontal, 18)
+        .padding(.top, 8)
+        .padding(.bottom, 6)
+        .background(Theme.background)
+    }
+
+    // MARK: - Pinned Category Filter Bar (Attached to top)
+    private var pinnedCategoryFilterBar: some View {
+        VStack(spacing: 0) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    // "All" Pill
+                    filterChip(title: "All", count: dataStore.items.count, isSelected: activeCategoryFilter == nil) {
+                        activeCategoryFilter = nil
+                    }
+
+                    ForEach(CaptureType.allCases) { category in
+                        let count = dataStore.items(for: category).count
+                        if count > 0 || activeCategoryFilter == category {
+                            filterChip(
+                                title: category.displayName,
+                                count: count,
+                                icon: category.iconName,
+                                color: category.tintColor,
+                                isSelected: activeCategoryFilter == category
+                            ) {
+                                if activeCategoryFilter == category {
+                                    activeCategoryFilter = nil
+                                } else {
+                                    activeCategoryFilter = category
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 18)
+                .padding(.vertical, 8)
+            }
+
+            Divider()
+                .opacity(0.25)
+        }
+        .background(Theme.background)
+    }
+
+    // MARK: - Hero Quick Capture Command Card
+    private var heroCommandDeckCard: some View {
+        VStack(spacing: 14) {
             // Central Quick Capture Input Capsule
             Button(action: {
                 HapticsManager.shared.categorySelected()
@@ -141,7 +196,7 @@ public struct HomeView: View {
                 categoryShortcutPill(type: .expense)
             }
         }
-        .padding(16)
+        .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(Theme.cardBackground)
@@ -158,51 +213,21 @@ public struct HomeView: View {
             HapticsManager.shared.categorySelected()
             captureSheetConfig = CaptureSheetConfig(category: type)
         }) {
-            HStack(spacing: 5) {
+            HStack(spacing: 4) {
                 Image(systemName: type.iconName)
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.system(size: 10, weight: .semibold))
                 Text(type.displayName)
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
             .foregroundColor(type.tintColor)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 9)
+            .padding(.vertical, 8)
             .background(type.tintColor.opacity(0.10))
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .buttonStyle(.plain)
-    }
-
-    // MARK: - Category Filter Bar
-    private var categoryFilterBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                // "All" Pill
-                filterChip(title: "All", count: dataStore.items.count, isSelected: activeCategoryFilter == nil) {
-                    activeCategoryFilter = nil
-                }
-
-                ForEach(CaptureType.allCases) { category in
-                    let count = dataStore.items(for: category).count
-                    if count > 0 || activeCategoryFilter == category {
-                        filterChip(
-                            title: category.displayName,
-                            count: count,
-                            icon: category.iconName,
-                            color: category.tintColor,
-                            isSelected: activeCategoryFilter == category
-                        ) {
-                            if activeCategoryFilter == category {
-                                activeCategoryFilter = nil
-                            } else {
-                                activeCategoryFilter = category
-                            }
-                        }
-                    }
-                }
-            }
-            .padding(.vertical, 2)
-        }
     }
 
     private func filterChip(
@@ -246,7 +271,7 @@ public struct HomeView: View {
 
     // MARK: - Default Overview Sections
     private var defaultOverviewSections: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 22) {
             // 1. Tasks Section (Incomplete tasks first)
             let activeTasks = dataStore.activeTasks
             if !activeTasks.isEmpty {
