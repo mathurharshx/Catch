@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Chronological capture timeline and fast search.
+/// Features a harmonized Liquid Glass header and fluid scrolling cards aligned with HomeView.
 public struct HistoryView: View {
     @ObservedObject private var dataStore = DataStore.shared
     @State private var searchQuery: String = ""
@@ -15,36 +16,50 @@ public struct HistoryView: View {
                 Theme.background.ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    // Category Filter Pills
-                    filterPillsBar
+                    // MARK: - 1 & 2. Liquid Glass Pinned Navigation & Filter Bar (Aligned with Home)
+                    VStack(spacing: 0) {
+                        topPinnedHeader
+                        searchFieldBar
+                        pinnedCategoryFilterBar
+                    }
+                    .background(.ultraThinMaterial)
+                    .overlay(
+                        Divider().opacity(0.18),
+                        alignment: .bottom
+                    )
+                    .zIndex(10)
 
-                    // Timeline Content
+                    // MARK: - 3. Chronological Timeline Feed (Fluid Scroll & Staggered Entrance)
                     let grouped = dataStore.groupedChronologically(
                         query: searchQuery,
                         category: selectedCategoryFilter
                     )
 
                     if grouped.isEmpty {
-                        if !searchQuery.isEmpty {
-                            EmptyStateView(
-                                icon: "magnifyingglass",
-                                title: "No results found",
-                                subtitle: "No captures match \"\(searchQuery)\""
-                            )
-                        } else {
-                            EmptyStateView(
-                                icon: "clock.arrow.circlepath",
-                                title: "No history yet",
-                                subtitle: "Your captured thoughts and tasks will appear here chronologically."
-                            )
+                        VStack {
+                            Spacer()
+                            if !searchQuery.isEmpty {
+                                EmptyStateView(
+                                    icon: "magnifyingglass",
+                                    title: "No results found",
+                                    subtitle: "No captures match \"\(searchQuery)\""
+                                )
+                            } else {
+                                EmptyStateView(
+                                    icon: "clock.arrow.circlepath",
+                                    title: "No history yet",
+                                    subtitle: "Your captured thoughts and tasks will appear here chronologically."
+                                )
+                            }
+                            Spacer()
                         }
                     } else {
-                        ScrollView {
-                            LazyVStack(spacing: 16, pinnedViews: [.sectionHeaders]) {
-                                ForEach(grouped, id: \.key) { group in
+                        ScrollView(.vertical, showsIndicators: true) {
+                            LazyVStack(spacing: 18, pinnedViews: [.sectionHeaders]) {
+                                ForEach(Array(grouped.enumerated()), id: \.element.key) { groupIndex, group in
                                     Section(header: stickyHeaderView(title: group.key, count: group.items.count)) {
-                                        VStack(spacing: 8) {
-                                            ForEach(group.items) { item in
+                                        VStack(spacing: 10) {
+                                            ForEach(Array(group.items.enumerated()), id: \.element.id) { itemIndex, item in
                                                 CaptureCardView(
                                                     item: item,
                                                     searchQuery: searchQuery,
@@ -55,6 +70,8 @@ public struct HistoryView: View {
                                                         selectedItemForDetail = item
                                                     }
                                                 )
+                                                .staggeredEntrance(index: groupIndex * 3 + itemIndex)
+                                                .fluidScrollTransition()
                                                 .contextMenu {
                                                     if item.type == .task {
                                                         Button(action: {
@@ -71,72 +88,162 @@ public struct HistoryView: View {
                                                 }
                                             }
                                         }
-                                        .padding(.horizontal, 20)
+                                        .padding(.horizontal, 18)
                                     }
                                 }
                             }
-                            .padding(.bottom, 80)
+                            .padding(.top, 8)
+                            .padding(.bottom, 95)
                         }
                     }
                 }
             }
-            .navigationTitle("History")
-            .navigationBarTitleDisplayMode(.large)
-            .searchable(
-                text: $searchQuery,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "Search all captures..."
-            )
+            .navigationBarHidden(true)
             .sheet(item: $selectedItemForDetail) { item in
                 CaptureDetailView(item: item)
             }
         }
+        .navigationViewStyle(.stack)
     }
 
-    // MARK: - Filter Pills
-    private var filterPillsBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
+    // MARK: - Pinned Top Header (Aligned with Home)
+    private var topPinnedHeader: some View {
+        HStack(alignment: .center, spacing: 10) {
+            // Mascot & App Title
             HStack(spacing: 8) {
+                CatchyMascotView(pose: .noteTaker, size: 36, animated: true)
+
+                Text("History")
+                    .font(.system(size: 23, weight: .black, design: .rounded))
+                    .foregroundColor(Theme.primaryText)
+            }
+
+            Spacer()
+
+            // Count Badge
+            HStack(spacing: 5) {
+                Image(systemName: "tray.fill")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(Theme.secondaryText)
+
+                Text("\(dataStore.items.count) items")
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundColor(Theme.secondaryText)
+            }
+            .padding(.horizontal, 11)
+            .padding(.vertical, 6)
+            .background(Theme.secondaryBackground.opacity(0.75))
+            .clipShape(Capsule())
+        }
+        .padding(.horizontal, 18)
+        .padding(.top, 8)
+        .padding(.bottom, 4)
+    }
+
+    // MARK: - Search Field Bar (Matches Command Deck Input Styling)
+    private var searchFieldBar: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(Theme.tertiaryText)
+
+            TextField("Search notes, tasks, ideas...", text: $searchQuery)
+                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .foregroundColor(Theme.primaryText)
+
+            if !searchQuery.isEmpty {
                 Button(action: {
-                    HapticsManager.shared.categorySelected()
-                    selectedCategoryFilter = nil
+                    searchQuery = ""
                 }) {
-                    Text("All")
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 6)
-                        .foregroundColor(selectedCategoryFilter == nil ? .white : Theme.primaryText)
-                        .background(
-                            Capsule()
-                                .fill(selectedCategoryFilter == nil ? Theme.primaryText : Theme.secondaryBackground)
-                        )
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(Theme.tertiaryText)
                 }
                 .buttonStyle(.plain)
-
-                ForEach(CaptureType.allCases) { category in
-                    Button(action: {
-                        HapticsManager.shared.categorySelected()
-                        if selectedCategoryFilter == category {
-                            selectedCategoryFilter = nil
-                        } else {
-                            selectedCategoryFilter = category
-                        }
-                    }) {
-                        CategoryBadge(
-                            type: category,
-                            isSelected: selectedCategoryFilter == category,
-                            showText: true
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 8)
         }
-        .background(Theme.background)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 9)
+        .background(Theme.secondaryBackground.opacity(0.85))
+        .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+        .padding(.horizontal, 18)
+        .padding(.top, 4)
+        .padding(.bottom, 6)
     }
 
+    // MARK: - Filter Pills Bar (Matches Home Category Filter Bar)
+    private var pinnedCategoryFilterBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                // "All" Pill
+                filterChip(title: "All", count: dataStore.items.count, isSelected: selectedCategoryFilter == nil) {
+                    selectedCategoryFilter = nil
+                }
+
+                ForEach(CaptureType.allCases) { category in
+                    let count = dataStore.items(for: category).count
+                    if count > 0 || selectedCategoryFilter == category {
+                        filterChip(
+                            title: category.displayName,
+                            count: count,
+                            icon: category.iconName,
+                            color: category.tintColor,
+                            isSelected: selectedCategoryFilter == category
+                        ) {
+                            if selectedCategoryFilter == category {
+                                selectedCategoryFilter = nil
+                            } else {
+                                selectedCategoryFilter = category
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 8)
+        }
+    }
+
+    private func filterChip(
+        title: String,
+        count: Int,
+        icon: String? = nil,
+        color: Color = Theme.primaryText,
+        isSelected: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: {
+            HapticsManager.shared.categorySelected()
+            action()
+        }) {
+            HStack(spacing: 5) {
+                if let icon = icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 10, weight: .semibold))
+                }
+
+                Text(title)
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+
+                Text("\(count)")
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 1)
+                    .background(isSelected ? Color.white.opacity(0.25) : color.opacity(0.12))
+                    .clipShape(Capsule())
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .foregroundColor(isSelected ? .white : (icon != nil ? color : Theme.primaryText))
+            .background(
+                Capsule()
+                    .fill(isSelected ? (icon != nil ? color : Theme.primaryText) : Theme.secondaryBackground)
+            )
+        }
+        .buttonStyle(.tactile)
+    }
+
+    // MARK: - Sticky Date Header
     private func stickyHeaderView(title: String, count: Int) -> some View {
         HStack {
             Text(title.uppercased())
@@ -149,8 +256,8 @@ public struct HistoryView: View {
                 .font(.system(size: 11, weight: .semibold, design: .rounded))
                 .foregroundColor(Theme.tertiaryText)
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 6)
         .background(
             Rectangle()
                 .fill(.ultraThinMaterial)

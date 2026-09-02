@@ -139,4 +139,52 @@ public extension View {
     func catchCard(cornerRadius: CGFloat = Theme.cornerRadiusMedium) -> some View {
         self.modifier(CatchCardModifier(cornerRadius: cornerRadius))
     }
+
+    func staggeredEntrance(index: Int) -> some View {
+        self.modifier(StaggeredEntranceModifier(index: index))
+    }
+
+    func fluidScrollTransition() -> some View {
+        self.modifier(FluidScrollCardModifier())
+    }
+}
+
+// MARK: - Staggered Scroll & Entrance Modifiers (Award-Winning Dynamics)
+public struct StaggeredEntranceModifier: ViewModifier {
+    public let index: Int
+    @State private var isVisible: Bool = false
+
+    public init(index: Int) {
+        self.index = index
+    }
+
+    public func body(content: Content) -> some View {
+        content
+            .opacity(isVisible ? 1.0 : 0.0)
+            .offset(y: isVisible ? 0 : 20)
+            .onAppear {
+                let delay = min(Double(index) * 0.04, 0.32)
+                withAnimation(Theme.springSmooth.delay(delay)) {
+                    isVisible = true
+                }
+            }
+    }
+}
+
+public struct FluidScrollCardModifier: ViewModifier {
+    public init() {}
+
+    public func body(content: Content) -> some View {
+        if #available(iOS 17.0, *) {
+            content
+                .scrollTransition(.animated(Theme.springSmooth)) { view, phase in
+                    view
+                        .opacity(phase.isIdentity ? 1.0 : 0.72)
+                        .scaleEffect(phase.isIdentity ? 1.0 : 0.96)
+                        .offset(y: phase.isIdentity ? 0 : 12)
+                }
+        } else {
+            content
+        }
+    }
 }

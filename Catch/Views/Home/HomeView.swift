@@ -303,7 +303,7 @@ public struct HomeView: View {
                     sectionHeader(title: "TASKS", count: activeTasks.count, color: Theme.accentSuccess)
 
                     VStack(spacing: 8) {
-                        ForEach(activeTasks.prefix(5)) { item in
+                        ForEach(Array(activeTasks.prefix(5).enumerated()), id: \.element.id) { index, item in
                             CaptureCardView(
                                 item: item,
                                 onToggleTask: {
@@ -313,6 +313,8 @@ public struct HomeView: View {
                                     selectedItemForDetail = item
                                 }
                             )
+                            .staggeredEntrance(index: index)
+                            .fluidScrollTransition()
                         }
                     }
                 }
@@ -325,11 +327,13 @@ public struct HomeView: View {
                     sectionHeader(title: "IDEAS", count: ideas.count, color: Theme.accentWarm)
 
                     VStack(spacing: 8) {
-                        ForEach(ideas.prefix(3)) { item in
+                        ForEach(Array(ideas.prefix(3).enumerated()), id: \.element.id) { index, item in
                             CaptureCardView(
                                 item: item,
                                 onTap: { selectedItemForDetail = item }
                             )
+                            .staggeredEntrance(index: 2 + index)
+                            .fluidScrollTransition()
                         }
                     }
                 }
@@ -342,11 +346,13 @@ public struct HomeView: View {
                     sectionHeader(title: "NOTES", count: notes.count, color: Theme.brandTint)
 
                     VStack(spacing: 8) {
-                        ForEach(notes.prefix(3)) { item in
+                        ForEach(Array(notes.prefix(3).enumerated()), id: \.element.id) { index, item in
                             CaptureCardView(
                                 item: item,
                                 onTap: { selectedItemForDetail = item }
                             )
+                            .staggeredEntrance(index: 4 + index)
+                            .fluidScrollTransition()
                         }
                     }
                 }
@@ -371,11 +377,13 @@ public struct HomeView: View {
                     }
 
                     VStack(spacing: 8) {
-                        ForEach(expenses.prefix(3)) { item in
+                        ForEach(Array(expenses.prefix(3).enumerated()), id: \.element.id) { index, item in
                             CaptureCardView(
                                 item: item,
                                 onTap: { selectedItemForDetail = item }
                             )
+                            .staggeredEntrance(index: 6 + index)
+                            .fluidScrollTransition()
                         }
                     }
                 }
@@ -397,7 +405,7 @@ public struct HomeView: View {
                 )
             } else {
                 VStack(spacing: 8) {
-                    ForEach(items) { item in
+                    ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                         CaptureCardView(
                             item: item,
                             onToggleTask: {
@@ -407,6 +415,8 @@ public struct HomeView: View {
                                 selectedItemForDetail = item
                             }
                         )
+                        .staggeredEntrance(index: index)
+                        .fluidScrollTransition()
                     }
                 }
             }
