@@ -52,7 +52,7 @@ public struct HomeView: View {
                     .zIndex(10)
 
                     // MARK: - 3. Smooth Scrollable Feed (120Hz ProMotion)
-                    ScrollView(.vertical, showsIndicators: true) {
+                    ScrollView(.vertical, showsIndicators: false) {
                         LazyVStack(alignment: .leading, spacing: 20) {
                             // Quick Capture Bento Command Card
                             heroCommandDeckCard
@@ -78,6 +78,7 @@ public struct HomeView: View {
                         .padding(.top, 4)
                         .padding(.bottom, 95)
                     }
+                    .scrollIndicators(.hidden)
                 }
             }
             .navigationBarHidden(true)

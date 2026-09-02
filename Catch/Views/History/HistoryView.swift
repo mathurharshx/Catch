@@ -54,7 +54,7 @@ public struct HistoryView: View {
                             Spacer()
                         }
                     } else {
-                        ScrollView(.vertical, showsIndicators: true) {
+                        ScrollView(.vertical, showsIndicators: false) {
                             LazyVStack(spacing: 18, pinnedViews: [.sectionHeaders]) {
                                 ForEach(Array(grouped.enumerated()), id: \.element.key) { groupIndex, group in
                                     Section(header: stickyHeaderView(title: group.key, count: group.items.count)) {
@@ -95,6 +95,7 @@ public struct HistoryView: View {
                             .padding(.top, 8)
                             .padding(.bottom, 95)
                         }
+                        .scrollIndicators(.hidden)
                     }
                 }
             }

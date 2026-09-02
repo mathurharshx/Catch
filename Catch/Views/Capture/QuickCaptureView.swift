@@ -82,7 +82,7 @@ public struct QuickCaptureView: View {
                         .background(Theme.border)
 
                     // Main Capture Input Area
-                    ScrollView {
+                    ScrollView(.vertical, showsIndicators: false) {
                         VStack(alignment: .leading, spacing: 16) {
                             // Text Input
                             ZStack(alignment: .topLeading) {
@@ -156,6 +156,7 @@ public struct QuickCaptureView: View {
                         .padding(.top, 12)
                         .padding(.bottom, 20)
                     }
+                    .scrollIndicators(.hidden)
 
                     Spacer()
 

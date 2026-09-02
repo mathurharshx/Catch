@@ -160,7 +160,7 @@ public struct SettingsView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 16)
 
-                ScrollView {
+                ScrollView(.vertical, showsIndicators: false) {
                     Text(exportedJSONText)
                         .font(.system(size: 12, design: .monospaced))
                         .padding(12)
@@ -169,6 +169,7 @@ public struct SettingsView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .padding(.horizontal, 20)
                 }
+                .scrollIndicators(.hidden)
 
                 Spacer()
             }
@@ -193,7 +194,7 @@ public struct SettingsView: View {
     // MARK: - Widget Guide
     private var widgetGuideSheet: some View {
         NavigationView {
-            ScrollView {
+            ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 20) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Add Catch to your Lock Screen")
@@ -233,6 +234,7 @@ public struct SettingsView: View {
                 }
                 .padding(24)
             }
+            .scrollIndicators(.hidden)
             .navigationTitle("Lock Screen Setup")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

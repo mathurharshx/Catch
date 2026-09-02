@@ -32,7 +32,7 @@ public struct CaptureDetailView: View {
             ZStack {
                 Theme.background.ignoresSafeArea()
 
-                ScrollView {
+                ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 20) {
                         // Category Selector
                         VStack(alignment: .leading, spacing: 8) {
@@ -308,6 +308,7 @@ public struct CaptureDetailView: View {
                     }
                     .padding(.vertical, 16)
                 }
+                .scrollIndicators(.hidden)
             }
             .navigationTitle("Details")
             .navigationBarTitleDisplayMode(.inline)
