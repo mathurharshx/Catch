@@ -19,6 +19,7 @@ public struct CatchyMascotView: View {
 
     @State private var isGleaming: Bool = false
     @State private var bounceOffset: CGFloat = 0
+    @State private var hoverOffset: CGFloat = 0
     @State private var rotationAngle: Double = 0
     @State private var scaleMultiplier: CGFloat = 1.0
 
@@ -104,10 +105,12 @@ public struct CatchyMascotView: View {
                     .foregroundColor(Theme.brandTint)
             }
         }
-        .offset(y: bounceOffset)
+        .offset(y: bounceOffset + hoverOffset)
         .onAppear {
-            if animated && (pose == .emptyState || pose == .celebrating) {
+            if animated {
+                // Gentle companion breathing float
                 withAnimation(Animation.easeInOut(duration: 2.2).repeatForever(autoreverses: true)) {
+                    hoverOffset = -2.5
                     isGleaming = true
                 }
             }
@@ -116,13 +119,13 @@ public struct CatchyMascotView: View {
         .onTapGesture {
             guard animated else { return }
             HapticsManager.shared.light()
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.5, blendDuration: 0)) {
-                bounceOffset = -7
-                rotationAngle = -4
-                scaleMultiplier = 1.08
+            withAnimation(.spring(response: 0.28, dampingFraction: 0.48, blendDuration: 0)) {
+                bounceOffset = -8
+                rotationAngle = -6
+                scaleMultiplier = 1.12
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.6)) {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.58)) {
                     bounceOffset = 0
                     rotationAngle = 0
                     scaleMultiplier = 1.0

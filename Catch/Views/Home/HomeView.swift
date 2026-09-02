@@ -19,24 +19,44 @@ public struct HomeView: View {
         return formatter.string(from: Date())
     }
 
+    private var timeOfDayGreeting: (greeting: String, emoji: String) {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 5..<12:
+            return ("Good morning", "👋")
+        case 12..<17:
+            return ("Good afternoon", "☀️")
+        case 17..<22:
+            return ("Good evening", "✨")
+        default:
+            return ("Good night", "🌙")
+        }
+    }
+
     public var body: some View {
         NavigationView {
             ZStack {
                 Theme.background.ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    // MARK: - 1. Pinned Top Brand & Action Header (Attached to Top)
-                    topPinnedHeader
-
-                    // MARK: - 2. Pinned Category Filter Bar (Attached to Top)
-                    pinnedCategoryFilterBar
+                    // MARK: - 1 & 2. Liquid Glass Navigation & Filter Bar
+                    VStack(spacing: 0) {
+                        topPinnedHeader
+                        pinnedCategoryFilterBar
+                    }
+                    .background(.ultraThinMaterial)
+                    .overlay(
+                        Divider().opacity(0.18),
+                        alignment: .bottom
+                    )
+                    .zIndex(10)
 
                     // MARK: - 3. Smooth Scrollable Feed (120Hz ProMotion)
                     ScrollView(.vertical, showsIndicators: true) {
                         LazyVStack(alignment: .leading, spacing: 20) {
-                            // Quick Capture Command Card (Aligned with feed cards)
+                            // Quick Capture Bento Command Card
                             heroCommandDeckCard
-                                .padding(.top, 8)
+                                .padding(.top, 12)
 
                             // Content Sections
                             if dataStore.items.isEmpty {
@@ -68,15 +88,15 @@ public struct HomeView: View {
         .navigationViewStyle(.stack)
     }
 
-    // MARK: - Pinned Top Header (Attached to top)
+    // MARK: - Pinned Top Header (Liquid Glass)
     private var topPinnedHeader: some View {
         HStack(alignment: .center, spacing: 10) {
             // Mascot & App Title
             HStack(spacing: 8) {
-                CatchyMascotView(pose: .catching, size: 34, animated: true)
+                CatchyMascotView(pose: .catching, size: 36, animated: true)
 
                 Text("Catch")
-                    .font(.system(size: 22, weight: .black, design: .rounded))
+                    .font(.system(size: 23, weight: .black, design: .rounded))
                     .foregroundColor(Theme.primaryText)
             }
 
@@ -89,62 +109,72 @@ public struct HomeView: View {
                     .foregroundColor(Theme.secondaryText)
 
                 Text(formattedTodayDate)
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .foregroundColor(Theme.secondaryText)
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(Theme.secondaryBackground)
+            .padding(.horizontal, 11)
+            .padding(.vertical, 6)
+            .background(Theme.secondaryBackground.opacity(0.75))
             .clipShape(Capsule())
         }
         .padding(.horizontal, 18)
         .padding(.top, 8)
         .padding(.bottom, 6)
-        .background(Theme.background)
     }
 
-    // MARK: - Pinned Category Filter Bar (Attached to top)
+    // MARK: - Pinned Category Filter Bar (Liquid Glass)
     private var pinnedCategoryFilterBar: some View {
-        VStack(spacing: 0) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    // "All" Pill
-                    filterChip(title: "All", count: dataStore.items.count, isSelected: activeCategoryFilter == nil) {
-                        activeCategoryFilter = nil
-                    }
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                // "All" Pill
+                filterChip(title: "All", count: dataStore.items.count, isSelected: activeCategoryFilter == nil) {
+                    activeCategoryFilter = nil
+                }
 
-                    ForEach(CaptureType.allCases) { category in
-                        let count = dataStore.items(for: category).count
-                        if count > 0 || activeCategoryFilter == category {
-                            filterChip(
-                                title: category.displayName,
-                                count: count,
-                                icon: category.iconName,
-                                color: category.tintColor,
-                                isSelected: activeCategoryFilter == category
-                            ) {
-                                if activeCategoryFilter == category {
-                                    activeCategoryFilter = nil
-                                } else {
-                                    activeCategoryFilter = category
-                                }
+                ForEach(CaptureType.allCases) { category in
+                    let count = dataStore.items(for: category).count
+                    if count > 0 || activeCategoryFilter == category {
+                        filterChip(
+                            title: category.displayName,
+                            count: count,
+                            icon: category.iconName,
+                            color: category.tintColor,
+                            isSelected: activeCategoryFilter == category
+                        ) {
+                            if activeCategoryFilter == category {
+                                activeCategoryFilter = nil
+                            } else {
+                                activeCategoryFilter = category
                             }
                         }
                     }
                 }
-                .padding(.horizontal, 18)
-                .padding(.vertical, 8)
             }
-
-            Divider()
-                .opacity(0.25)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 8)
         }
-        .background(Theme.background)
     }
 
-    // MARK: - Hero Quick Capture Command Card
+    // MARK: - Hero Quick Capture Bento Command Card
     private var heroCommandDeckCard: some View {
-        VStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: 12) {
+            // Time-of-day Bento Greeting
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(timeOfDayGreeting.greeting) \(timeOfDayGreeting.emoji)")
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundColor(Theme.primaryText)
+
+                    Text(dataStore.items.isEmpty ? "What would you like to remember?" : "\(dataStore.items.count) thoughts safely caught")
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundColor(Theme.secondaryText)
+                }
+
+                Spacer()
+            }
+            .padding(.horizontal, 2)
+            .padding(.top, 2)
+
             // Central Quick Capture Input Capsule
             Button(action: {
                 HapticsManager.shared.categorySelected()
@@ -185,9 +215,9 @@ public struct HomeView: View {
                 .background(Theme.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.tactile)
 
-            // Category 1-Tap Launcher Shortcuts Row
+            // Category 1-Tap Tactile Launcher Shortcuts Row
             HStack(spacing: 8) {
                 categoryShortcutPill(type: .note)
                 categoryShortcutPill(type: .idea)
@@ -195,7 +225,7 @@ public struct HomeView: View {
                 categoryShortcutPill(type: .expense)
             }
         }
-        .padding(14)
+        .padding(15)
         .catchCard(cornerRadius: Theme.cornerRadiusLarge)
     }
 
@@ -213,15 +243,15 @@ public struct HomeView: View {
             }
             .foregroundColor(type.tintColor)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 9)
-            .background(type.tintColor.opacity(0.10))
+            .padding(.vertical, 10)
+            .background(type.tintColor.opacity(0.12))
             .overlay(
-                RoundedRectangle(cornerRadius: 11, style: .continuous)
-                    .stroke(type.tintColor.opacity(0.20), lineWidth: 0.8)
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(type.tintColor.opacity(0.22), lineWidth: 1)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.tactile)
     }
 
     private func filterChip(
@@ -260,7 +290,7 @@ public struct HomeView: View {
                     .fill(isSelected ? (icon != nil ? color : Theme.primaryText) : Theme.secondaryBackground)
             )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.tactile)
     }
 
     // MARK: - Default Overview Sections

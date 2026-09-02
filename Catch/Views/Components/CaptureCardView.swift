@@ -50,32 +50,63 @@ public struct CaptureCardView: View {
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
 
-                    // Subtask Checklist Items (if present)
+                    // Subtask Checklist Items with Live Progress Track (if present)
                     if let checklist = item.checklistItems, !checklist.isEmpty {
-                        VStack(alignment: .leading, spacing: 6) {
-                            ForEach(checklist) { checkItem in
-                                HStack(spacing: 8) {
-                                    Button(action: {
-                                        DataStore.shared.toggleChecklistItem(itemId: item.id, checklistItemId: checkItem.id)
-                                    }) {
-                                        Image(systemName: checkItem.isCompleted ? "checkmark.circle.fill" : "circle")
-                                            .font(.system(size: 14, weight: .medium))
-                                            .foregroundColor(checkItem.isCompleted ? Theme.accentSuccess : Theme.secondaryText)
-                                    }
-                                    .buttonStyle(.plain)
+                        VStack(alignment: .leading, spacing: 8) {
+                            // Mini Animated Progress Track
+                            let total = item.totalChecklistCount
+                            let completed = item.completedChecklistCount
+                            let progress = total > 0 ? CGFloat(completed) / CGFloat(total) : 0
 
-                                    Text(checkItem.title)
-                                        .font(.system(size: 13, weight: .regular))
-                                        .strikethrough(checkItem.isCompleted)
-                                        .foregroundColor(checkItem.isCompleted ? Theme.secondaryText : Theme.primaryText)
-                                        .lineLimit(1)
+                            HStack(spacing: 8) {
+                                GeometryReader { geo in
+                                    ZStack(alignment: .leading) {
+                                        Capsule()
+                                            .fill(Theme.secondaryBackground)
+                                            .frame(height: 5)
+
+                                        Capsule()
+                                            .fill(completed == total ? Theme.accentSuccess : Theme.brandTint)
+                                            .frame(width: max(geo.size.width * progress, 0), height: 5)
+                                            .animation(.spring(response: 0.38, dampingFraction: 0.75), value: progress)
+                                    }
+                                }
+                                .frame(height: 5)
+
+                                Text("\(completed)/\(total)")
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    .foregroundColor(completed == total ? Theme.accentSuccess : Theme.secondaryText)
+                            }
+                            .padding(.horizontal, 2)
+                            .padding(.top, 2)
+
+                            // Subtask items list
+                            VStack(alignment: .leading, spacing: 6) {
+                                ForEach(checklist) { checkItem in
+                                    HStack(spacing: 8) {
+                                        Button(action: {
+                                            HapticsManager.shared.light()
+                                            DataStore.shared.toggleChecklistItem(itemId: item.id, checklistItemId: checkItem.id)
+                                        }) {
+                                            Image(systemName: checkItem.isCompleted ? "checkmark.circle.fill" : "circle")
+                                                .font(.system(size: 14, weight: .semibold))
+                                                .foregroundColor(checkItem.isCompleted ? Theme.accentSuccess : Theme.secondaryText.opacity(0.8))
+                                        }
+                                        .buttonStyle(.plain)
+
+                                        Text(checkItem.title)
+                                            .font(.system(size: 13, weight: .regular))
+                                            .strikethrough(checkItem.isCompleted)
+                                            .foregroundColor(checkItem.isCompleted ? Theme.secondaryText : Theme.primaryText)
+                                            .lineLimit(1)
+                                    }
                                 }
                             }
                         }
-                        .padding(.vertical, 4)
-                        .padding(.horizontal, 8)
-                        .background(Theme.secondaryBackground.opacity(0.5))
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 10)
+                        .background(Theme.secondaryBackground.opacity(0.55))
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
 
                     // Footer row: Category, Checklist progress, Source, Expense amount, Reminder, Timestamp
