@@ -34,15 +34,13 @@ public enum CategoryDetector {
 
         let lower = trimmed.lowercased()
 
-        // 1. Check for Expense first (highest specificity)
-        if let expense = ExpenseParser.parse(text: trimmed, defaultCurrency: defaultCurrency) {
-            // High confidence if it starts with currency or spent/paid
-            let startsWithCurrency = trimmed.starts(with: "₹") || trimmed.starts(with: "$") ||
-                                     trimmed.starts(with: "€") || trimmed.starts(with: "£") ||
-                                     lower.starts(with: "rs") || lower.starts(with: "inr") ||
-                                     lower.starts(with: "spent") || lower.starts(with: "paid")
-            let confidence = startsWithCurrency ? 0.95 : 0.80
-            return DetectionResult(category: .expense, parsedExpense: expense, confidence: confidence)
+        // 1. Check for explicit currency or spent/paid prefix first (highest specificity)
+        let startsWithCurrency = trimmed.starts(with: "₹") || trimmed.starts(with: "$") ||
+                                 trimmed.starts(with: "€") || trimmed.starts(with: "£") ||
+                                 lower.starts(with: "rs") || lower.starts(with: "inr") ||
+                                 lower.starts(with: "spent") || lower.starts(with: "paid")
+        if startsWithCurrency, let expense = ExpenseParser.parse(text: trimmed, defaultCurrency: defaultCurrency) {
+            return DetectionResult(category: .expense, parsedExpense: expense, confidence: 0.95)
         }
 
         // 2. Check for Idea prefixes
@@ -59,7 +57,12 @@ public enum CategoryDetector {
             }
         }
 
-        // 4. Default to Note
+        // 4. Check for natural language expense patterns (e.g. 750 cafe, cafe 750, 180202 car rent)
+        if let expense = ExpenseParser.parse(text: trimmed, defaultCurrency: defaultCurrency) {
+            return DetectionResult(category: .expense, parsedExpense: expense, confidence: 0.85)
+        }
+
+        // 5. Default to Note
         return DetectionResult(category: .note, parsedExpense: nil, confidence: 0.50)
     }
 }

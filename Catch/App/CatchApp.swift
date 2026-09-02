@@ -49,23 +49,32 @@ struct CatchApp: App {
         guard url.scheme == "catch" else { return }
 
         var selectedType: CaptureType? = nil
+        var initialText: String? = nil
 
         // Support catch://capture?type=task or catch://task or catch://expense etc.
         let host = url.host?.lowercased() ?? ""
         let path = url.path.lowercased()
 
         if host == "capture" || path.contains("capture") || url.absoluteString.starts(with: "catch://capture") {
-            if let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
-               let typeParam = components.queryItems?.first(where: { $0.name == "type" })?.value,
-               let type = CaptureType(rawValue: typeParam.lowercased()) {
-                selectedType = type
+            if let components = URLComponents(url: url, resolvingAgainstBaseURL: true) {
+                if let typeParam = components.queryItems?.first(where: { $0.name == "type" || $0.name == "category" })?.value,
+                   let type = CaptureType(rawValue: typeParam.lowercased()) {
+                    selectedType = type
+                }
+                if let textParam = components.queryItems?.first(where: { $0.name == "text" || $0.name == "content" })?.value {
+                    initialText = textParam
+                }
             }
         } else if let directType = CaptureType(rawValue: host) {
             // Direct scheme shortcut e.g. catch://task or catch://expense
             selectedType = directType
+            if let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
+               let textParam = components.queryItems?.first(where: { $0.name == "text" || $0.name == "content" })?.value {
+                initialText = textParam
+            }
         }
 
         // Set config with fresh UUID to trigger SwiftUI sheet presentation cleanly
-        captureSheetConfig = CaptureSheetConfig(category: selectedType)
+        captureSheetConfig = CaptureSheetConfig(category: selectedType, initialText: initialText)
     }
 }

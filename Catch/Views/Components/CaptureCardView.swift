@@ -41,7 +41,7 @@ public struct CaptureCardView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     // Content text with search term highlighting
                     HighlightedText(
-                        text: item.content,
+                        text: item.displayTitle,
                         query: searchQuery,
                         isStrikethrough: item.isCompleted,
                         textColor: item.isCompleted ? Theme.secondaryText : Theme.primaryText,

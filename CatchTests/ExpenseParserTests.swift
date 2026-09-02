@@ -43,4 +43,39 @@ final class ExpenseParserTests: XCTestCase {
         let parsed = ExpenseParser.parse(text: input)
         XCTAssertNil(parsed)
     }
+
+    func testNumberFirstWithoutSymbol() {
+        let input = "750 cafe"
+        let parsed = ExpenseParser.parse(text: input, defaultCurrency: "₹")
+        XCTAssertNotNil(parsed)
+        XCTAssertEqual(parsed?.amount, 750)
+        XCTAssertEqual(parsed?.currency, "₹")
+        XCTAssertEqual(parsed?.merchant, "cafe")
+    }
+
+    func testMerchantFirstNumberAtEnd() {
+        let input = "cafe 750"
+        let parsed = ExpenseParser.parse(text: input, defaultCurrency: "₹")
+        XCTAssertNotNil(parsed)
+        XCTAssertEqual(parsed?.amount, 750)
+        XCTAssertEqual(parsed?.currency, "₹")
+        XCTAssertEqual(parsed?.merchant, "cafe")
+    }
+
+    func testCommaSeparatedAmount() {
+        let input = "1,80,202 car rent"
+        let parsed = ExpenseParser.parse(text: input, defaultCurrency: "₹")
+        XCTAssertNotNil(parsed)
+        XCTAssertEqual(parsed?.amount, 180202)
+        XCTAssertEqual(parsed?.currency, "₹")
+        XCTAssertEqual(parsed?.merchant, "car rent")
+    }
+
+    func testStandaloneNumber() {
+        let input = "750"
+        let parsed = ExpenseParser.parse(text: input, defaultCurrency: "₹")
+        XCTAssertNotNil(parsed)
+        XCTAssertEqual(parsed?.amount, 750)
+        XCTAssertEqual(parsed?.currency, "₹")
+    }
 }

@@ -47,6 +47,38 @@ final class DataStoreTests: XCTestCase {
         store.delete(id: item.id)
     }
 
+    func testBareNumberExpenseParsingOnSave() {
+        let store = DataStore.shared
+        let item = store.save(
+            content: "750 cafe",
+            type: .expense,
+            source: .text
+        )
+
+        XCTAssertEqual(item.amount, 750)
+        XCTAssertEqual(item.currency, "₹")
+        XCTAssertEqual(item.merchant, "cafe")
+        XCTAssertEqual(item.displayTitle, "₹750 Cafe")
+
+        store.delete(id: item.id)
+    }
+
+    func testMerchantFirstExpenseParsingOnSave() {
+        let store = DataStore.shared
+        let item = store.save(
+            content: "cafe 750",
+            type: .expense,
+            source: .text
+        )
+
+        XCTAssertEqual(item.amount, 750)
+        XCTAssertEqual(item.currency, "₹")
+        XCTAssertEqual(item.merchant, "cafe")
+        XCTAssertEqual(item.displayTitle, "₹750 Cafe")
+
+        store.delete(id: item.id)
+    }
+
     func testChecklistSubtaskToggle() {
         let store = DataStore.shared
         let checklist = [

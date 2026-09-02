@@ -85,6 +85,15 @@ public struct HomeView: View {
             .sheet(item: $selectedItemForDetail) { item in
                 CaptureDetailView(item: item)
             }
+            .onOpenURL { url in
+                if let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
+                   let filterParam = components.queryItems?.first(where: { $0.name == "filter" })?.value,
+                   let filterType = CaptureType(rawValue: filterParam.lowercased()) {
+                    withAnimation(Theme.springQuick) {
+                        activeCategoryFilter = filterType
+                    }
+                }
+            }
         }
         .navigationViewStyle(.stack)
     }

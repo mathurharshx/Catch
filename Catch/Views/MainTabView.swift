@@ -53,7 +53,18 @@ public struct MainTabView: View {
             }
         }
         .sheet(item: $captureSheetConfig) { config in
-            QuickCaptureView(initialCategory: config.category, initialSource: config.source)
+            QuickCaptureView(initialCategory: config.category, initialSource: config.source, initialText: config.initialText)
+        }
+        .onOpenURL { url in
+            let host = url.host?.lowercased() ?? ""
+            let path = url.path.lowercased()
+            if host == "history" || path.contains("history") {
+                selectedTab = 1
+            } else if host == "settings" || path.contains("settings") {
+                selectedTab = 2
+            } else if host == "home" {
+                selectedTab = 0
+            }
         }
     }
 }

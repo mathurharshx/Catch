@@ -36,11 +36,13 @@ public struct QuickCaptureView: View {
 
     @FocusState private var isTextFieldFocused: Bool
 
-    public init(initialCategory: CaptureType? = nil, initialSource: CaptureSource = .text) {
+    public init(initialCategory: CaptureType? = nil, initialSource: CaptureSource = .text, initialText: String? = nil) {
         let initialCat = initialCategory ?? UserSettings.shared.defaultCategory
         _selectedCategory = State(initialValue: initialCat)
         _captureSource = State(initialValue: initialSource)
         _hasManuallySelectedCategory = State(initialValue: initialCategory != nil)
+        let text = initialText ?? ""
+        _textContent = State(initialValue: text)
     }
 
     private var isContentEmpty: Bool {
@@ -222,6 +224,9 @@ public struct QuickCaptureView: View {
             }
         }
         .onAppear {
+            if !textContent.isEmpty {
+                handleTextChange(textContent)
+            }
             if userSettings.autoFocusKeyboard {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     isTextFieldFocused = true
@@ -339,31 +344,57 @@ public struct QuickCaptureView: View {
     // MARK: - Expense Section
     private var expenseFieldsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Expense Details (Optional)")
-                .font(.system(size: 13, weight: .semibold, design: .rounded))
-                .foregroundColor(Theme.secondaryText)
+            HStack {
+                Text("Expense Details")
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundColor(Theme.secondaryText)
+
+                Spacer()
+
+                if !expenseAmountString.isEmpty {
+                    HStack(spacing: 4) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 11, weight: .semibold))
+                        Text("Auto-Organized")
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                    }
+                    .foregroundColor(Theme.accentExpense)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(Theme.accentExpense.opacity(0.12))
+                    .clipShape(Capsule())
+                }
+            }
 
             HStack(spacing: 12) {
                 // Amount
-                HStack(spacing: 4) {
+                HStack(spacing: 6) {
                     Text(userSettings.defaultCurrency)
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(Theme.accentExpense)
 
                     TextField("Amount", text: $expenseAmountString)
                         .keyboardType(.decimalPad)
-                        .font(.system(size: 15))
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .foregroundColor(Theme.primaryText)
                 }
                 .padding(10)
                 .background(Theme.secondaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
-                // Merchant
-                TextField("Merchant/Place", text: $expenseMerchant)
-                    .font(.system(size: 15))
-                    .padding(10)
-                    .background(Theme.secondaryBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                // Merchant / Place
+                HStack(spacing: 6) {
+                    Image(systemName: "storefront.fill")
+                        .font(.system(size: 13))
+                        .foregroundColor(Theme.secondaryText)
+
+                    TextField("Merchant/Place", text: $expenseMerchant)
+                        .font(.system(size: 15, weight: .medium, design: .rounded))
+                        .foregroundColor(Theme.primaryText)
+                }
+                .padding(10)
+                .background(Theme.secondaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
         }
         .padding(.horizontal, 16)
@@ -521,8 +552,6 @@ public struct QuickCaptureView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Actions
-
     private func handleTextChange(_ text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -532,11 +561,28 @@ public struct QuickCaptureView: View {
                     selectedCategory = userSettings.defaultCategory
                 }
             }
+            expenseAmountString = ""
+            expenseMerchant = ""
             return
         }
 
-        // Proactive Zero-Touch Categorization if user hasn't manually overridden
-        if !hasManuallySelectedCategory {
+        // 1. Dynamic Expense Detection & Extraction (runs even in manual Expense mode!)
+        if let parsedExpense = ExpenseParser.parse(text: trimmed, defaultCurrency: userSettings.defaultCurrency) {
+            if !hasManuallySelectedCategory && selectedCategory != .expense {
+                withAnimation(Theme.springQuick) {
+                    selectedCategory = .expense
+                }
+                HapticsManager.shared.categorySelected()
+            }
+
+            if selectedCategory == .expense || !hasManuallySelectedCategory {
+                let amt = parsedExpense.amount
+                let formattedStr = (amt.truncatingRemainder(dividingBy: 1) == 0) ? "\(Int(amt))" : String(format: "%.2f", amt)
+                expenseAmountString = formattedStr
+                expenseMerchant = parsedExpense.merchant
+            }
+        } else if !hasManuallySelectedCategory {
+            // Proactive Zero-Touch Categorization for Task, Idea, Note
             let detection = CategoryDetector.detect(from: trimmed, defaultCurrency: userSettings.defaultCurrency)
 
             if detection.category != selectedCategory && detection.confidence >= 0.80 {
@@ -544,11 +590,6 @@ public struct QuickCaptureView: View {
                     selectedCategory = detection.category
                 }
                 HapticsManager.shared.categorySelected()
-            }
-
-            if let parsedExpense = detection.parsedExpense {
-                expenseAmountString = "\(parsedExpense.amount)"
-                expenseMerchant = parsedExpense.merchant
             }
         }
     }

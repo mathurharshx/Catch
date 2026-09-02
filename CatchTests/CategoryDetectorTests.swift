@@ -9,7 +9,10 @@ final class CategoryDetectorTests: XCTestCase {
             "$14 Lunch",
             "spent 500 on shoes",
             "paid 320 for uber",
-            "120 rs auto"
+            "120 rs auto",
+            "750 cafe",
+            "cafe 750",
+            "180202 car rent"
         ]
 
         for text in testCases {

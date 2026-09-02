@@ -50,7 +50,7 @@ public enum CaptureType: String, Codable, CaseIterable, Identifiable, Sendable {
         case .note: return "What do you want to remember?"
         case .idea: return "Describe your idea..."
         case .task: return "What needs to get done?"
-        case .expense: return "e.g. ₹850 Starbucks or $15 Coffee"
+        case .expense: return "e.g. 750 cafe or starbucks 450"
         }
     }
 }

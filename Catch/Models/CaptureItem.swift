@@ -90,6 +90,22 @@ public struct CaptureItem: Identifiable, Codable, Equatable, Hashable, Sendable 
         return "\(symbol)\(numberString)"
     }
 
+    /// Clean, organized title for cards and feed presentation
+    public var displayTitle: String {
+        if type == .expense, let formattedAmt = formattedAmount {
+            let sym = currency ?? "₹"
+            if content.contains(sym) {
+                return content
+            }
+            if let merchant = merchant, !merchant.isEmpty {
+                return "\(formattedAmt) \(merchant.capitalized)"
+            } else {
+                return formattedAmt
+            }
+        }
+        return content
+    }
+
     /// Count of completed checklist items
     public var completedChecklistCount: Int {
         checklistItems?.filter { $0.isCompleted }.count ?? 0
@@ -131,10 +147,12 @@ public struct CaptureSheetConfig: Identifiable, Equatable, Hashable, Sendable {
     public let id: UUID
     public var category: CaptureType?
     public var source: CaptureSource
+    public var initialText: String?
 
-    public init(id: UUID = UUID(), category: CaptureType? = nil, source: CaptureSource = .text) {
+    public init(id: UUID = UUID(), category: CaptureType? = nil, source: CaptureSource = .text, initialText: String? = nil) {
         self.id = id
         self.category = category
         self.source = source
+        self.initialText = initialText
     }
 }
